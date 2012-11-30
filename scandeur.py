@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # coding=utf8
 
+import codecs
+
+def strlist(l):
+    return u"[{0}]".format(u", ".join(unicode(x) for x in l))
+
+
+
 class Pied:
     def __init__(self, voyelle, position):
         self.voyelle = voyelle
@@ -22,14 +29,14 @@ class TypeVers:
         self.motif_pieds = motif_pieds
         
     def scande(self, quantites):
-        self.scande_rec(quantites, self.motif_pieds)
+        return self.scande_rec([], "", quantites, self.motif_pieds)
     
-    def scande_rec(self, quantites, motif_droite):
-        print u"scande_rec({0}, {1})".format(quantites, motif_droite)
+    def scande_rec(self, gauche, gauche_pieds, quantites, motif_droite):
+        #print u"scande_rec({0}, {1})".format(quantites, strlist(motif_droite))
         if motif_droite == []:
             if quantites == []:
-                print "==> return fini"
-                return [ [] ]
+                #print "==> return fini: {0}".format(gauche)
+                return [ (gauche, gauche_pieds) ]
             else:
                 return None
         else:
@@ -37,17 +44,17 @@ class TypeVers:
             reste_motif = motif_droite[1:]
             possibilites_pied = pied.scande(quantites)
             
-            print "=> {0}".format(possibilites_pied)
+            #print "=> {0}".format(strlist(possibilites_pied))
             
             possibilites = []
-            for (sp, r) in possibilites_pied:
-                scansions_reste = self.scande_rec(r, reste_motif)
+            for (sp, spn, r) in possibilites_pied:
+                scansions = self.scande_rec(gauche + sp, gauche_pieds + spn, r, reste_motif)
                 #if scansions_reste == True:
                 #    possibilites += [ sp ]
-                if scansions_reste != None:
-                    for sr in scansions_reste:
-                        possibilites += [ sp + sr ]
+                if scansions != None:
+                    possibilites += scansions
 
+            #print "==> {0}".format(possibilites)
             return possibilites
                         
 
@@ -68,25 +75,39 @@ class ChoixPied(TypePiedAbstrait):
             scande_c = c.scande(quantites)
             possibilites += scande_c
         return possibilites
+        
+    def __str__(self):
+        return u"(OU {0})".format(strlist(self.choix))
 
 class TypePied(TypePiedAbstrait):
-    def __init__(self, motif):
+    def __init__(self, motif, nom):
         self.motif = motif
+        self.nom = nom
     
     def longueur(self):
         return len(self.motif)
     
     def scande(self, quantites):
-        print u"TypePied.scande({0}, {1})".format(self.motif, quantites)
+        #print u"TypePied.scande({0}, {1})".format(self.motif, quantites)
+
+        # si pas assez de pieds, alors aucune solution d'emblée
+        if len(quantites) < len(self.motif):
+            return []
+
         reste = quantites[ len(self.motif) : ]
+        
         for i in range( len(self.motif) ):
             if quantites[i] != 0 and quantites[i] != self.motif[i]:
                 return []
-        return [ (self.motif, reste) ]
+        return [ (self.motif, self.nom, reste) ]
+    
+    def __str__(self):
+        return self.nom
 
-P_DACTYLE = TypePied([2, 1, 1])
-P_TROCHEE = TypePied([2, 1])
-P_SPONDEE = TypePied([2, 2])
+P_DACTYLE = TypePied([2, 1, 1], u'd')
+P_TROCHEE = TypePied([2, 1], u't')
+P_SPONDEE = TypePied([2, 2], u's')
+P_IAMBE = TypePied([1, 2], u'i')
 
 V_HEXAMETRE = TypeVers([
     ChoixPied([P_DACTYLE, P_SPONDEE]),
@@ -97,8 +118,17 @@ V_HEXAMETRE = TypeVers([
     ChoixPied([P_TROCHEE, P_SPONDEE])
 ])
 
+V_SENAIRE_IAMBIQUE = TypeVers([
+    P_IAMBE,
+    P_IAMBE,
+    P_IAMBE,
+    P_IAMBE,
+    P_IAMBE,
+    ChoixPied([P_IAMBE, P_DACTYLE])
+])
+
 def voyelle(c):
-    return c in u"aeiouæœy"
+    return c in u"aeiouæœαε"
 
 # normalise :
 # - convertit tout en minuscules
@@ -115,7 +145,7 @@ def normalise(vers):
         elif c in u"ōŏ": c = u"o"
         elif c in u"ūŭ": c = u"u"
         elif c in u"ǣ": c = u"æ"
-        elif c == "/": continue
+        elif c in u"/,?;.:«»()": continue
         
         resultat += c
     
@@ -139,10 +169,10 @@ def applique_elisions(vers):
 # remplace les diphtongues par des voyelles uniques
 # qv devient qu
 def remplace_diphtongues(vers):
-    return vers.replace(u"qu", u"qv").replace(u"ae", u"æ").replace(u"eu", u"y").replace(u"au", u"y").replace(u"oe", u"œ")
+    return vers.replace(u"qu", u"q").replace(u" iu", u" ju").replace(u"ae", u"æ").replace(u"eu", u"ε").replace(u"au", u"α").replace(u"oe", u"œ")
     
 def diphtongue(c):
-    return c in u"æœy"
+    return c in u"æœαε"
 
 
 def decoupe_pieds(vers):
@@ -180,46 +210,65 @@ def formate_scansion(vers, pieds, quantites):
     return vers
         
 
-def strlist(l):
-    return u"[{0}]".format(u", ".join(unicode(x) for x in l))
-
-def scande(vers):
-    print( u"Entrée :    {0}".format(vers) )
+def scande(vers, type_vers):
+    #print( u"Entrée :    {0}".format(vers) )
     
     versNormalise = normalise(vers)
-    print( u"Normalisé : {0}".format(versNormalise) )
+    #print( u"Normalisé : {0}".format(versNormalise) )
     
     versElide = applique_elisions(versNormalise)
-    print( u"Élidé :     {0}".format(versElide) )
+    #print( u"Élidé :     {0}".format(versElide) )
     
     versSimplifie = remplace_diphtongues(versElide)
-    print( u"Simplifié : {0}".format(versSimplifie) )
+    #print( u"Simplifié : {0}".format(versSimplifie) )
     
     pieds = decoupe_pieds(versSimplifie)
-    print( u"Pieds :     {0}".format(strlist(pieds)) )
+    #print( u"Pieds :     {0}".format(strlist(pieds)) )
     
     quantites = quantites_evidentes(pieds)
-    res = formate_scansion(versSimplifie, pieds, quantites)
-    print( u"Longueurs : {0}".format(res) )
+    res_quantites_apriori = formate_scansion(versSimplifie, pieds, quantites)
+    #print( u"Longueurs : {0}".format(res) )
     
-    possibilites = V_HEXAMETRE.scande( quantites )
+    possibilites = type_vers.scande( quantites )
     
-    if possibilites == None:
-        print( u"Pas de solution trouvée" )
+    if possibilites == None or possibilites == []:
+        print( u"-- Quantités a priori : {0}".format(res_quantites_apriori) )
+        return False
     else:
-        for p in possibilites:
+        for (p, forme_vers) in possibilites:
             res = formate_scansion(versSimplifie, pieds, p)
-            print( u"Scansion :  {0}".format(res) )
+            #print( u"Possibilité :  {0}\t\t{1}".format(res, forme_vers) )
+            print( u"{1:10}\t\t{0}".format(res, forme_vers) )
+        return True
     
-    
+
+def forme_vers_horace(l):
+    if l % 2 == 0:
+        return V_HEXAMETRE
+    else:
+        return V_SENAIRE_IAMBIQUE
 
 def main():
-    # un vers d'Horace...
-    entree = u"Āltĕră /jām tĕrĭ/tūr bēl/līs cī/vīlĭbŭs /ǣtas"
+    # vers d'Horace...
+    #scande(u"Āltĕră /jām tĕrĭ/tūr bēl/līs cī/vīlĭbŭs /ǣtas", V_HEXAMETRE)
     
-    scande(entree)
+    #scande(u"sŭīs ĕt īpsă Rōmă vīrĭbūs rŭīt", V_SENAIRE_IAMBIQUE)
+    
+    f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
+    
+    i=0
+    succes = 0
+    for l in f:
+        l = l.strip()
+        print u"* {0}".format(l)
+        if scande(l, forme_vers_horace(i)):
+            succes += 1
+        i += 1
+        print
 
-    
+    print u"Solutions trouvées dans {0} cas sur {1}".format(succes, i)
+
+
 if __name__ == "__main__":
     main()
 
