@@ -97,17 +97,19 @@ class TypePied(TypePiedAbstrait):
         reste = quantites[ len(self.motif) : ]
         
         for i in range( len(self.motif) ):
-            if quantites[i] != 0 and quantites[i] != self.motif[i]:
+            if self.motif[i] != 0 and quantites[i] != 0 and quantites[i] != self.motif[i]:
                 return []
         return [ (self.motif, self.nom, reste) ]
     
     def __str__(self):
         return self.nom
+    
 
 P_DACTYLE = TypePied([2, 1, 1], u'd')
 P_TROCHEE = TypePied([2, 1], u't')
 P_SPONDEE = TypePied([2, 2], u's')
 P_IAMBE = TypePied([1, 2], u'i')
+P_INDIF_TROCHEE_SPONDEE = TypePied([2, 0], u't/s')
 
 V_HEXAMETRE = TypeVers([
     ChoixPied([P_DACTYLE, P_SPONDEE]),
@@ -115,7 +117,7 @@ V_HEXAMETRE = TypeVers([
     ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
-    ChoixPied([P_TROCHEE, P_SPONDEE])
+    P_INDIF_TROCHEE_SPONDEE
 ])
 
 V_SENAIRE_IAMBIQUE = TypeVers([
