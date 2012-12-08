@@ -249,14 +249,14 @@ def scande(vers, type_vers):
         return (True, txt)
     
 
-def forme_vers_horace(l):
+def forme_hdsi(l):
     if l % 2 == 0:
         return V_HEXAMETRE
     else:
         return V_SENAIRE_IAMBIQUE
 
 types = {
-    "hdsi": forme_vers_horace,
+    "hdsi": forme_hdsi,
     "hd": (lambda(k): V_HEXAMETRE),
     "si": (lambda(k): V_SENAIRE_IAMBIQUE)
 }
@@ -272,7 +272,7 @@ def scande_texte(type, lignes):
     for l in lignes:
         l = l.strip()
         yield u"* {0}".format(l)
-        (ok, msg) = scande(l, forme_vers_horace(i))
+        (ok, msg) = scande(l, schema_fun(i))
         yield msg
         if ok:
             succes += 1
