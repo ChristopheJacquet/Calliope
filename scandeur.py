@@ -25,8 +25,9 @@ class Pied:
 
 
 class TypeVers:
-    def __init__(self, motif_pieds):
+    def __init__(self, abbr, motif_pieds):
         self.motif_pieds = motif_pieds
+        self.abbr = abbr
         
     def scande(self, quantites):
         return self.scande_rec([], "", quantites, self.motif_pieds)
@@ -111,7 +112,7 @@ P_SPONDEE = TypePied([2, 2], u's')
 P_IAMBE = TypePied([1, 2], u'i')
 P_INDIF_TROCHEE_SPONDEE = TypePied([2, 0], u't/s')
 
-V_HEXAMETRE = TypeVers([
+V_HEXAMETRE = TypeVers("hd", [
     ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
@@ -120,7 +121,7 @@ V_HEXAMETRE = TypeVers([
     P_INDIF_TROCHEE_SPONDEE
 ])
 
-V_SENAIRE_IAMBIQUE = TypeVers([
+V_SENAIRE_IAMBIQUE = TypeVers("si", [
     P_IAMBE,
     P_IAMBE,
     P_IAMBE,
@@ -222,13 +223,13 @@ def scande(vers, type_vers):
     versNormalise = normalise(vers)
     #print( u"Normalisé : {0}".format(versNormalise) )
     
-    versElide = applique_elisions(versNormalise)
-    #print( u"Élidé :     {0}".format(versElide) )
-    
-    versSimplifie = remplace_diphtongues(versElide)
+    versSimplifie = remplace_diphtongues(versNormalise)
     #print( u"Simplifié : {0}".format(versSimplifie) )
     
-    pieds = decoupe_pieds(versSimplifie)
+    versElide = applique_elisions(versSimplifie)
+    #print( u"Élidé :     {0}".format(versElide) )
+    
+    pieds = decoupe_pieds(versElide)
     #print( u"Pieds :     {0}".format(strlist(pieds)) )
     
     quantites = quantites_evidentes(pieds)
@@ -271,8 +272,9 @@ def scande_texte(type, lignes):
     succes = 0
     for l in lignes:
         l = l.strip()
-        yield u"* {0}".format(l)
-        (ok, msg) = scande(l, schema_fun(i))
+        type_vers = schema_fun(i)
+        yield u"[{0}] {1}".format(type_vers.abbr, l)
+        (ok, msg) = scande(l, type_vers)
         yield msg
         if ok:
             succes += 1
@@ -291,7 +293,7 @@ def main():
     f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
     
     for r in scande_texte("hdsi", f):
-        print r
+        print codecs.encode(r, "utf-8")
 
 
 if __name__ == "__main__":
