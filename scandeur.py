@@ -193,7 +193,11 @@ def quantites_evidentes(pieds):
     resultat = []
     for p in pieds:
         q = 0
-        if len(p.consonnes) >= 2:
+        # une voyelle suivie de 2 consonnes (ou plus) est allongée, mais pas 
+        # systématiquement si sur les 2, la 2e est un r ou un l
+        if len(p.consonnes) == 2 and not p.consonnes[1] in "rl":
+            q = 2
+        elif len(p.consonnes) > 2:
             q = 2
         if diphtongue(p.voyelle):
             q = 2
@@ -252,7 +256,9 @@ def forme_vers_horace(l):
         return V_SENAIRE_IAMBIQUE
 
 types = {
-    "hdsi": forme_vers_horace
+    "hdsi": forme_vers_horace,
+    "hd": (lambda(k): V_HEXAMETRE),
+    "si": (lambda(k): V_SENAIRE_IAMBIQUE)
 }
 
 def scande_texte(type, lignes):
@@ -285,7 +291,7 @@ def main():
     f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
     
     for r in scande_texte("hdsi", f):
-        yield r
+        print r
 
 
 if __name__ == "__main__":
