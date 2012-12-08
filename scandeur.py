@@ -250,6 +250,29 @@ def forme_vers_horace(l):
     else:
         return V_SENAIRE_IAMBIQUE
 
+types = {
+    "hdsi": forme_vers_horace
+}
+
+def scande_texte(type, lignes):
+    if not type in types:
+        yield u"Type inconnu: " + type
+        return
+        
+    schema_fun = types[type]
+    i=0
+    succes = 0
+    for l in lignes:
+        l = l.strip()
+        yield u"* {0}".format(l)
+        if scande(l, forme_vers_horace(i)):
+            succes += 1
+        i += 1
+        yield ""
+
+    print u"Solutions trouvées dans {0} cas sur {1}".format(succes, i)
+
+
 def main():
     # vers d'Horace...
     #scande(u"Āltĕră /jām tĕrĭ/tūr bēl/līs cī/vīlĭbŭs /ǣtas", V_HEXAMETRE)
@@ -258,17 +281,8 @@ def main():
     
     f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
     
-    i=0
-    succes = 0
-    for l in f:
-        l = l.strip()
-        print u"* {0}".format(l)
-        if scande(l, forme_vers_horace(i)):
-            succes += 1
-        i += 1
-        print
-
-    print u"Solutions trouvées dans {0} cas sur {1}".format(succes, i)
+    for r in scande_texte("hdsi", f):
+        print r
 
 
 if __name__ == "__main__":
