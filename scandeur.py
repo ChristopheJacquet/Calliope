@@ -234,14 +234,15 @@ def scande(vers, type_vers):
     possibilites = type_vers.scande( quantites )
     
     if possibilites == None or possibilites == []:
-        print( u"-- Quantités a priori : {0}".format(res_quantites_apriori) )
-        return False
+        return (False, u"-- Quantités a priori : {0}\n".format(res_quantites_apriori) )
     else:
+        txt = u""
         for (p, forme_vers) in possibilites:
             res = formate_scansion(versSimplifie, pieds, p)
             #print( u"Possibilité :  {0}\t\t{1}".format(res, forme_vers) )
-            print( u"{1:10}\t\t{0}".format(res, forme_vers) )
-        return True
+            #txt += u"hello\n"
+            txt += u"{1:10}\t\t{0}\n".format(res, forme_vers)
+        return (True, txt)
     
 
 def forme_vers_horace(l):
@@ -265,12 +266,14 @@ def scande_texte(type, lignes):
     for l in lignes:
         l = l.strip()
         yield u"* {0}".format(l)
-        if scande(l, forme_vers_horace(i)):
+        (ok, msg) = scande(l, forme_vers_horace(i))
+        yield msg
+        if ok:
             succes += 1
         i += 1
         yield ""
 
-    print u"Solutions trouvées dans {0} cas sur {1}".format(succes, i)
+    yield u"Solutions trouvées dans {0} cas sur {1}".format(succes, i)
 
 
 def main():
@@ -282,7 +285,7 @@ def main():
     f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
     
     for r in scande_texte("hdsi", f):
-        print r
+        yield r
 
 
 if __name__ == "__main__":
