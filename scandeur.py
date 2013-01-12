@@ -196,7 +196,7 @@ def normalise(vers):
         elif c in u"ōŏ": c = u"o"
         elif c in u"ūŭ": c = u"u"
         elif c in u"ǣ": c = u"æ"
-        elif c in u"/,?;.:«»()": continue
+        elif not (c.isalpha() or c == " "): continue   # u"/,?;.:«»()'"
         
         resultat += c
     
@@ -353,7 +353,7 @@ def main():
     for r in scande_texte("hdpd", f):
         print codecs.encode(r, "utf-8")
 
-    for r in scande_texte("hd", [u"Sisyphus in vita quoque nobis ante oculos est"]):
+    for r in scande_texte("hd", [u"ille, datis vadibus qui rur' extractus in urb' est"]):
         print codecs.encode(r, "utf-8")
 
 if __name__ == "__main__":
