@@ -110,6 +110,9 @@ P_DACTYLE = TypePied([2, 1, 1], u'd')
 P_TROCHEE = TypePied([2, 1], u't')
 P_SPONDEE = TypePied([2, 2], u's')
 P_IAMBE = TypePied([1, 2], u'i')
+P_ANAPESTE = TypePied([1, 1, 2], u'a')
+P_TRIBRAQUE = TypePied([1, 1, 1], u'3')
+P_PROCELEUSMATIQUE = TypePied([1, 1, 1, 1], u'p')  # procéleusmatique
 P_INDIF_TROCHEE_SPONDEE = TypePied([2, 0], u't/s')
 
 V_HEXAMETRE = TypeVers("hd", [
@@ -121,6 +124,22 @@ V_HEXAMETRE = TypeVers("hd", [
     P_INDIF_TROCHEE_SPONDEE
 ])
 
+# "hexamètre dactylique / pentamètre dactylique" (on peut pour simplifier
+# l'appeler "distique élégiaque"), et voici le schéma du pentamètre :
+# longue brève brève / longue brève brève / longue isolée obligatoire //
+# longue brève brève / longue brève brève / voyelle finale indifférente.
+# Aux deux premiers pieds les dactyles peuvent être remplacés par des
+# spondées , ou inversement.
+
+V_PENTAMETRE = TypeVers("pd", [
+    ChoixPied([P_DACTYLE, P_SPONDEE]),
+    ChoixPied([P_DACTYLE, P_SPONDEE]),
+    TypePied([2], u'-'),
+    P_DACTYLE,
+    P_DACTYLE,
+    TypePied([0], u'*')
+])
+
 V_SENAIRE_IAMBIQUE = TypeVers("si", [
     P_IAMBE,
     P_IAMBE,
@@ -130,8 +149,37 @@ V_SENAIRE_IAMBIQUE = TypeVers("si", [
     ChoixPied([P_IAMBE, P_DACTYLE])
 ])
 
+# "hendécasyllabe phalécien" (chez Catulle, entre autres) comporte un spondée, un 
+# dactyle et trois trochées.
+V_HENDECASYLLABE_PHALECIEN = TypeVers("hp", [
+    P_SPONDEE,
+    P_DACTYLE,
+    P_TROCHEE,
+    P_TROCHEE,
+    P_INDIF_TROCHEE_SPONDEE,
+])
+
+# Le "sénaire iambique" se termine lui aussi par une syllabe indifférente,
+# et quand on le trouve ce n'est pas en alternance avec un autre mètre.
+# Son principe de base est le suivant : brève longue / brève longue /
+# brève longue / brève longue / brève longue / brève indifférente Aux cinq
+# premiers pieds, le iambe peut être remplacé par un dactyle, un spondée,
+# un anapeste (brève brève longue), un tribraque (brève brève brève). Le
+# sixième et dernier pied est le seul fiable : brève + indifférente = un
+# douzième de certitude ! Au premier pied même, parfois, on peut trouver
+# un procéleusmatique (brève brève brève brève)
+
+V_SENAIRE_IAMBIQUE = TypeVers("si", [
+    ChoixPied([P_IAMBE, P_DACTYLE, P_SPONDEE, P_ANAPESTE, P_TRIBRAQUE, P_PROCELEUSMATIQUE]),
+    ChoixPied([P_IAMBE, P_DACTYLE, P_SPONDEE, P_ANAPESTE, P_TRIBRAQUE]),
+    ChoixPied([P_IAMBE, P_DACTYLE, P_SPONDEE, P_ANAPESTE, P_TRIBRAQUE]),
+    ChoixPied([P_IAMBE, P_DACTYLE, P_SPONDEE, P_ANAPESTE, P_TRIBRAQUE]),
+    ChoixPied([P_IAMBE, P_DACTYLE, P_SPONDEE, P_ANAPESTE, P_TRIBRAQUE]),
+    TypePied([1, 0], u'.*')    
+])
+
 def voyelle(c):
-    return c in u"aeiouæœαε"
+    return c in u"aeiouyæœαε"
 
 # normalise :
 # - convertit tout en minuscules
@@ -233,7 +281,7 @@ def scande(vers, type_vers):
     #print( u"Pieds :     {0}".format(strlist(pieds)) )
     
     quantites = quantites_evidentes(pieds)
-    res_quantites_apriori = formate_scansion(versSimplifie, pieds, quantites)
+    res_quantites_apriori = formate_scansion(versElide, pieds, quantites)
     #print( u"Longueurs : {0}".format(res) )
     
     possibilites = type_vers.scande( quantites )
@@ -243,7 +291,7 @@ def scande(vers, type_vers):
     else:
         txt = u""
         for (p, forme_vers) in possibilites:
-            res = formate_scansion(versSimplifie, pieds, p)
+            res = formate_scansion(versElide, pieds, p)
             #print( u"Possibilité :  {0}\t\t{1}".format(res, forme_vers) )
             #txt += u"hello\n"
             txt += u"{1:10}\t\t{0}\n".format(res, forme_vers)
@@ -256,10 +304,18 @@ def forme_hdsi(l):
     else:
         return V_SENAIRE_IAMBIQUE
 
+def forme_distique_elegiaque(l):
+    if l % 2 == 0:
+        return V_HEXAMETRE
+    else:
+        return V_PENTAMETRE
+
 types = {
+    "hdpd": forme_distique_elegiaque,
     "hdsi": forme_hdsi,
     "hd": (lambda(k): V_HEXAMETRE),
-    "si": (lambda(k): V_SENAIRE_IAMBIQUE)
+    "si": (lambda(k): V_SENAIRE_IAMBIQUE),
+    "hp": (lambda(k): V_HENDECASYLLABE_PHALECIEN),
 }
 
 def scande_texte(type, lignes):
@@ -290,11 +346,15 @@ def main():
     
     #scande(u"sŭīs ĕt īpsă Rōmă vīrĭbūs rŭīt", V_SENAIRE_IAMBIQUE)
     
-    f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
+    #f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
+    #f = codecs.open("catulle_hendecasyllabe_phalecien.txt", "r", encoding="utf-8")
+    f = codecs.open("distique_elegiaque.txt", "r", encoding="utf-8")
     
-    for r in scande_texte("hdsi", f):
+    for r in scande_texte("hdpd", f):
         print codecs.encode(r, "utf-8")
 
+    for r in scande_texte("hd", [u"Sisyphus in vita quoque nobis ante oculos est"]):
+        print codecs.encode(r, "utf-8")
 
 if __name__ == "__main__":
     main()
