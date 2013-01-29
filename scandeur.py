@@ -2,12 +2,13 @@
 # coding=utf8
 
 import codecs
+import sqlite3
 
 def strlist(l):
     return u"[{0}]".format(u", ".join(unicode(x) for x in l))
 
 
-
+"""
 class Pied:
     def __init__(self, voyelle, position):
         self.voyelle = voyelle
@@ -22,6 +23,27 @@ class Pied:
     
     def __repr__(self):
         return self.__str__()
+"""
+
+class Pied:
+    def __init__(self, voyelle):
+        self.voyelle = voyelle
+        self.consonnes = u""
+        self.longueur = 0
+    
+    def ajouteConsonne(self, c):
+        self.consonnes += c
+    
+    def __str__(self):
+        if self.longueur == 2:
+            marque = "_"
+        else:
+            marque = ""
+        return u"{0}{1}{2}".format(self.voyelle, marque, self.consonnes)
+    
+    def __repr__(self):
+        return self.__str__()
+
 
 
 class TypeVers:
@@ -195,7 +217,9 @@ def normalise(vers):
         elif c in u"īĭ": c = u"i"
         elif c in u"ōŏ": c = u"o"
         elif c in u"ūŭ": c = u"u"
-        elif c in u"ǣ": c = u"æ"
+        elif c in u"ǣ": c = u"ae"
+        elif c in u"æ": c = u"ae"
+        elif c in u"œ": c = u"oe"
         elif not (c.isalpha() or c == " "): continue   # u"/,?;.:«»()'"
         
         resultat += c
@@ -204,6 +228,7 @@ def normalise(vers):
 
 # si un mot se termine par une voyelle, et si le mot suivant commence par
 # une voyelle, alors on supprime la voyelle finale du premier mot
+"""
 def applique_elisions(vers):
     resultat = u""
     
@@ -215,17 +240,21 @@ def applique_elisions(vers):
     resultat += vers[-2:]
     
     return resultat
+"""
 
 
 # remplace les diphtongues par des voyelles uniques
 # qv devient qu
+"""
 def remplace_diphtongues(vers):
     return vers.replace(u"qu", u"q").replace(u" iu", u" ju").replace(u"ae", u"æ").replace(u"eu", u"ε").replace(u"au", u"α").replace(u"oe", u"œ")
     
 def diphtongue(c):
     return c in u"æœαε"
+"""
 
 
+"""
 def decoupe_pieds(vers):
     vers += u"#"
     pieds = [Pied(None, None)]
@@ -236,8 +265,45 @@ def decoupe_pieds(vers):
         elif c != " ":
             pieds[-1].ajouteConsonne(c)
     return pieds[1:-1]
+"""
+
+
+def decoupe_pieds(vers):
+    pieds = [Pied(None)]
+    debut = u"##"
+    
+    diphtongues = ["ae", "oe", "eu", "au"]
+    
+    for c in vers:
+        if c == '_':
+            pieds[-1].longueur = 2
+        elif c == ' ':
+            pieds[-1].ajouteConsonne(" ")
+        elif voyelle(c):
+            # diphtongue ?
+            if debut[-1] + c in diphtongues:
+                pieds[-1].voyelle += c
+            # suit q ?
+            elif debut[-1] + c == "qu":
+                pieds[-1].ajouteConsonne(c)
+            # en tête de mot avec élision ?
+            elif voyelle(debut[-2]) and debut[-1] == " ":
+                pieds[-1].ajouteConsonne(c)
+            # "vraie" voyelle ?
+            else:
+                pieds += [Pied(c)]
+        else:
+            pieds[-1].ajouteConsonne(c)
+        
+        if c != '_':
+            debut += c
+    
+    return pieds
+
+
     
 
+"""
 def quantites_evidentes(pieds):
     resultat = []
     for p in pieds:
@@ -252,8 +318,13 @@ def quantites_evidentes(pieds):
             q = 2
         resultat += [q]
     return resultat
+"""
+
+def quantites_apriori(pieds):
+    return map(lambda p: p.longueur, pieds[1:])
 
 
+"""
 def formate_scansion(vers, pieds, quantites):
     for i in range(len(pieds)-1, -1, -1):
         if quantites[i] > 0:   # si une quantité a été affectée
@@ -263,38 +334,174 @@ def formate_scansion(vers, pieds, quantites):
                 c = u"\u0304"
             vers = vers[:pieds[i].position+1] + c + vers[pieds[i].position+1:]
     return vers
-        
+"""
 
-def scande(vers, type_vers):
+def formate_scansion(texte, pieds, quantites, mode):
+    if mode == "txt":
+        res = pieds[0].consonnes
+        for i in range(1,(len(pieds))):
+            res += pieds[i].voyelle
+            if quantites[i-1] == 1:
+                res += u"'"
+            elif quantites[i-1] == 2:
+                res += u"_"
+            res += pieds[i].consonnes
+            if i != len(pieds)-1:
+                res += "/ "
+        return u"{0}\t\t{1}\n".format(texte, res)
+        
+    elif mode == "html":
+        h = u'<td rowspan="2">{0}</td>'.format(texte)
+        h += u'<td></td>'       # * len(pieds[0].consonnes)
+        b =  u'<td>{0}</td>'.format(pieds[0].consonnes)
+        #'<td>' + '</td><td>'.join(pieds[0].consonnes) + '</td>'
+        
+        for i in range(1, len(pieds)):
+            b += pieds[i].voyelle
+            if quantites[i-1] == 1:
+                symbole = u"˘"
+            elif quantites[i-1] == 2:
+                symbole = u"–"
+            else:
+                symbole = u""
+            
+            h += u'<td>{0}</td>'.format(symbole)
+            b += u'<td>{0}</td>'.format(pieds[i].voyelle)
+            #h += u'<td colspan="{0}">{1}</td>'.format(len(pieds[i].voyelle), symbole)
+            #b += '<td>' + '</td><td>'.join(pieds[i].voyelle) + '</td>'
+            
+            h += u'<td></td>'
+            b += u'<td>{0}</td>'.format(pieds[i].consonnes)
+
+            #h += u'<td></td>' * len(pieds[i].consonnes)
+            #b += '<td>' + '</td><td>'.join(pieds[i].consonnes) + '</td>'
+            
+            if i != len(pieds)-1:
+                h += u'<td></td>'
+                b += u'<td>/</td>'
+        
+        return u'<table><tr>{0}</tr>\n       <tr>{1}</tr></table>\n'.format(h, b)
+
+
+class Dictionnaire:
+    def __init__(self):
+        self.conn = sqlite3.connect('mots.sqlite')
+        self.conn.row_factory = sqlite3.Row
+    
+    def cherche(self, mot):
+        c = self.conn.cursor()
+        c.execute("SELECT longueurs from mots WHERE mot=?", (mot,))
+        for r in c:
+            return r["longueurs"]
+        return None
+
+
+
+def recherche_dictionnaire(vers):
+    dic = Dictionnaire()
+    debug = []
+    non_trouves = []
+    res = []
+    for mot in vers.split():
+        l = dic.cherche(mot)
+        if l == None:
+            debug += ["???"]
+            non_trouves += [mot]
+            res += [mot]
+        else:
+            debug += [l]
+            res += [l]
+    #print u"Recherche dans le dictionnaire: " + u" ".join(debug)
+    res = u" ".join(res)
+    return (res, non_trouves)
+
+
+
+''' DUPLICAT
+def decoupe_pieds2(vers):
+    pieds = [Pied2(None)]
+    debut = u"##"
+    
+    diphtongues = ["ae", "oe", "eu", "au"]
+    
+    for c in vers:
+        if c == '_':
+            pieds[-1].longueur = 2
+        elif c == ' ':
+            pieds[-1].ajouteConsonne(" ")
+        elif voyelle(c):
+            # diphtongue ?
+            if debut[-1] + c in diphtongues:
+                pieds[-1].voyelle += c
+            # suit q ?
+            elif debut[-1] + c == "qu":
+                pieds[-1].ajouteConsonne(c)
+            # en tête de mot avec élision ?
+            elif voyelle(debut[-2]) and debut[-1] == " ":
+                pieds[-1].ajouteConsonne(c)
+            # "vraie" voyelle ?
+            else:
+                pieds += [Pied2(c)]
+        else:
+            pieds[-1].ajouteConsonne(c)
+        
+        if c != '_':
+            debut += c
+    
+    return pieds[1:]
+'''
+
+def par(texte, mode):
+    if mode == "txt":
+        return texte
+    else:
+        return u"<p>{0}</p>".format(texte)
+
+def scande(vers, type_vers, mode = "txt"):
+    txt = u""
     #print( u"Entrée :    {0}".format(vers) )
     
     versNormalise = normalise(vers)
     #print( u"Normalisé : {0}".format(versNormalise) )
+
+    (versPondere, non_trouves) = recherche_dictionnaire(versNormalise)
+    if len(non_trouves) > 0:
+        txt += par(u"Mots absents du dictionnaire : {0}\n".format(u", ".join(non_trouves)), mode)
     
-    versSimplifie = remplace_diphtongues(versNormalise)
+    pieds = decoupe_pieds(versPondere)
+
+    ##print u" / ".join(map(str, pieds))
+    
+    ###versSimplifie = remplace_diphtongues(versNormalise)
     #print( u"Simplifié : {0}".format(versSimplifie) )
     
-    versElide = applique_elisions(versSimplifie)
+    ###versElide = applique_elisions(versSimplifie)
     #print( u"Élidé :     {0}".format(versElide) )
     
-    pieds = decoupe_pieds(versElide)
+    ###pieds = decoupe_pieds(versElide)
     #print( u"Pieds :     {0}".format(strlist(pieds)) )
     
-    quantites = quantites_evidentes(pieds)
-    res_quantites_apriori = formate_scansion(versElide, pieds, quantites)
+    ###quantites = quantites_evidentes(pieds)
+    quantites = quantites_apriori(pieds)
+    
+    res_quantites_apriori = formate_scansion(u"Quantités a priori", pieds, quantites, mode)
+    if mode == "txt":
+        txt += res_quantites_apriori
+    
     #print( u"Longueurs : {0}".format(res) )
     
     possibilites = type_vers.scande( quantites )
     
     if possibilites == None or possibilites == []:
-        return (False, u"-- Quantités a priori : {0}\n".format(res_quantites_apriori) )
+        if mode == "html":
+            txt += res_quantites_apriori
+        return (False, txt + par(u"Pas de solution trouvée", mode) )
     else:
-        txt = u""
         for (p, forme_vers) in possibilites:
-            res = formate_scansion(versElide, pieds, p)
+            res = formate_scansion(u"{0:10}".format(forme_vers), pieds, p, mode)
             #print( u"Possibilité :  {0}\t\t{1}".format(res, forme_vers) )
             #txt += u"hello\n"
-            txt += u"{1:10}\t\t{0}\n".format(res, forme_vers)
+            txt += res
         return (True, txt)
     
 
@@ -318,26 +525,26 @@ types = {
     "hp": (lambda(k): V_HENDECASYLLABE_PHALECIEN),
 }
 
-def scande_texte(type, lignes):
+def scande_texte(type, lignes, mode="txt"):
     if not type in types:
-        yield u"Type inconnu: " + type
+        yield par( u"Type inconnu: " + type, mode )
         return
-        
+    
     schema_fun = types[type]
     i=0
     succes = 0
     for l in lignes:
         l = l.strip()
         type_vers = schema_fun(i)
-        yield u"[{0}] {1}".format(type_vers.abbr, l)
-        (ok, msg) = scande(l, type_vers)
+        yield par( u"[{0}] {1}".format(type_vers.abbr, l), mode )
+        (ok, msg) = scande(l, type_vers, mode)
         yield msg
         if ok:
             succes += 1
         i += 1
         yield ""
 
-    yield u"Solutions trouvées dans {0} cas sur {1}".format(succes, i)
+    yield par( u"Solutions trouvées dans {0} cas sur {1}".format(succes, i), mode )
 
 
 def main():
@@ -350,7 +557,7 @@ def main():
     #f = codecs.open("catulle_hendecasyllabe_phalecien.txt", "r", encoding="utf-8")
     f = codecs.open("distique_elegiaque.txt", "r", encoding="utf-8")
     
-    for r in scande_texte("hdpd", f):
+    for r in scande_texte("hdpd", f, mode="html"):
         print codecs.encode(r, "utf-8")
 
     for r in scande_texte("hd", [u"ille, datis vadibus qui rur' extractus in urb' est"]):
