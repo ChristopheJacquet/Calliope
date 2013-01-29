@@ -357,7 +357,6 @@ def formate_scansion(texte, pieds, quantites, mode):
         #'<td>' + '</td><td>'.join(pieds[0].consonnes) + '</td>'
         
         for i in range(1, len(pieds)):
-            b += pieds[i].voyelle
             if quantites[i-1] == 1:
                 symbole = u"˘"
             elif quantites[i-1] == 2:
@@ -365,7 +364,12 @@ def formate_scansion(texte, pieds, quantites, mode):
             else:
                 symbole = u""
             
-            h += u'<td>{0}</td>'.format(symbole)
+            if pieds[i].longueur != 0:
+                cls = u'class="apriori"'
+            else:
+                cls = ""
+            
+            h += u'<td {1}>{0}</td>'.format(symbole, cls)
             b += u'<td>{0}</td>'.format(pieds[i].voyelle)
             #h += u'<td colspan="{0}">{1}</td>'.format(len(pieds[i].voyelle), symbole)
             #b += '<td>' + '</td><td>'.join(pieds[i].voyelle) + '</td>'
@@ -534,6 +538,7 @@ def scande_texte(type, lignes, mode="txt"):
     i=0
     succes = 0
     for l in lignes:
+        if mode=="html": yield(u'<div class="vers">')
         l = l.strip()
         type_vers = schema_fun(i)
         yield par( u"[{0}] {1}".format(type_vers.abbr, l), mode )
@@ -542,6 +547,7 @@ def scande_texte(type, lignes, mode="txt"):
         if ok:
             succes += 1
         i += 1
+        if mode=="html": yield(u'</div>')
         yield ""
 
     yield par( u"Solutions trouvées dans {0} cas sur {1}".format(succes, i), mode )
