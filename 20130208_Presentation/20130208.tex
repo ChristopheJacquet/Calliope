@@ -12,15 +12,304 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning}
+
+
+
+\newcommand{\lettre}[1]{\emph{\structure{#1}}}
+\newcommand{\latin}[1]{\structure{#1}}
+\newcommand{\crx}{$\times$}
+
+\newcommand{\syll}[1]{\fbox{#1 \hspace{5mm}}}
+
+
+\title{Vers un outil pédagogique d'aide à la scansion}
+\author{Christophe Jacquet}
+\date{8 février 2013}
+
+
 \begin{document}
 
+\maketitle
 
 
-\begin{frame}{A sample slide}
+\begin{frame}{Présentation du projet}
+
+\begin{itemize}
+\item La scansion latine: position du problème
+
+\begin{itemize}
+\item un vers est décomposé en syllabes,\\ dont chacune peut être longue ou brève
+\item un type de poème impose un ensemble de schémas possibles pour un vers, en termes de longueurs de syllabes
+\item \structure{scander un vers}: l'aligner sur l'un des schémas possibles
+\end{itemize}
+
+\vfill
+
+\item Objectif:
+
+\begin{itemize}
+\item Explorer l'aide informatique à la scansion
+\item Un outil entièrement automatique semble inaccessible
+\end{itemize}
+
+\end{itemize}
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{Plan}
+
+\tableofcontents
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Méthode de scansion}
+
+
+
+\begin{frame}{Principe général}
+
+Deux étapes:
+
+\begin{enumerate}
+\item Pré-traitement du vers:
+\begin{itemize}
+\item découper le vers en syllabes
+\item contraindre au maximum les longueurs de syllabes qui ne souffrent (quasiment) pas d'exceptions
+\end{itemize}
+
+\item Alignement avec un schéma de vers
+
+\begin{itemize}
+\item On suppose connu le type de vers; on détermine alors les longueurs manquantes
+\item Souvent plusieurs solutions
+\item Parfois aucune...
+\end{itemize}
+
+\end{enumerate}
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\subsection{Pré-traitement du vers}
+
+\subsubsection{Recherche des mots dans le dictionnaire}
+
+\begin{frame}{Recherche des mots dans le dictionnaire}  %Détermination des longueurs par nature}
+
+\begin{itemize}
+\item Même en omettant cette étape, on obtient déjà des résultats intéressants!
+
+\vfill
+
+\item Ce que peut indiquer un dictionnaire:
+
+\begin{itemize}
+\item les voyelles longues ou brèves \structure{par nature}
+\item les \lettre{e} en hiatus devant un \lettre{u} \\
+ex: Collatinus indique \latin{m{\u e}us} vs \latin{seu}
+\item la valeur consonne ou voyelle de u/v et i/j
+\end{itemize}
+
+\vfill
+
+\item Quel dictionnaire?
+
+\begin{tabular}{r c c c}
+				& Longues & Brèves & u/v, i/j \\
+\hline
+Collatinus		& \crx    & \crx   &  \\
+Pocket Oxfort Latin & \crx &       & \crx \\
+Lewis \& Short	& \crx    & \crx   & \crx \\
+\hline
+\end{tabular}
+
+
+\end{itemize}
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{Méthode employée pour la recherche de mots}
+
+\begin{itemize}
+
+\item Enjeu:
+
+\begin{itemize}
+\item pour les noms et verbes, le dictionnaire donne le radical et le modèle de flexion
+\item or dans un texte, on rencontre des formes fléchies
+\end{itemize}
+
+\vfill
+
+\item[$\Rightarrow$] Génération de toutes les formes de la langue latine
+
+\begin{itemize}
+\item Utilisation du générateur de Philippe Verkerk pour le \emph{Pocket Oxford}
+\item Passage de 10\,700 entrées à 615\,000 formes
+\item Stockage dans une base de données pour un accès rapide
+\item Taille raisonnable: 40 Mo
+\end{itemize}
+
+\end{itemize}
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsubsection{Découpage en syllabes}
+
+\begin{frame}{Découpage en syllabes}
+
+\begin{itemize}
+\item Analyse du texte lettre par lettre
+\item Principe général:\\ «~une syllabe = une voyelle suivie de consonnes~»
+\item Règles:
+
+\begin{itemize}
+\item une diphtongue (\lettre{ae}, \lettre{oe}, \lettre{eu}, \lettre{au}) compte pour une seule voyelle (longue)
+\item ... sauf si la première voyelle est marquée brève (hiatus)
+\item \lettre{u} dans \lettre{qu} ne compte pas comme voyelle
+\item une voyelle en début de mot après une voyelle s'élide
+\end{itemize}
+
+\end{itemize}
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsubsection{Longueurs par position}
+
+\begin{frame}{Longueurs par position}
+
+\begin{itemize}
+\item Une voyelle sans longueur par nature, suivie de deux consonnes, doit être allongée
+\item Quelques exceptions
+\end{itemize}
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Alignement avec un schéma de vers}
+
+\begin{frame}{Alignement avec un schéma de vers}
+
+%\syll{} \syll{\}
+
+Schéma du vers
+
+Essai de toutes les combinaisons possibles
+
+Algorithmiquement réaliste
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{Incertitudes}
+
+Exemple: pentamètre
+
+
+
+\begin{tikzpicture}[->, node distance=1cm]
+\tikzstyle{div}=[circle,thick,draw=black,fill=black,inner sep=0pt,minimum size=.5mm]
+\tikzstyle{pied}=[rectangle,draw=black,fill=white]
+
+\node[div] (d0) {};
+
+\node[pied] (p1h) [above right=.3cm and .5cm of d0] {\=~\u~\u~};
+\node[pied] (p1b) [below right=.3cm and .65cm of d0] {\=~\=~};
+\node[div] (d1) [below right=.3cm and .5cm of p1h] {};
+
+\node[pied] (p2h) [above right=.3cm and .5cm of d1] {\=~\u~\u~};
+\node[pied] (p2b) [below right=.3cm and .65cm of d1] {\=~\=~};
+\node[div] (d2) [below right=.3cm and .5cm of p2h] {};
+
+\node[pied] (p3) [right=.2cm of d2] {\=~};
+
+\node[pied] (p4) [right=.6cm of p3] {\=~\u~\u~};
+
+\node[pied] (p5) [right=.6cm of p4] {\=~\u~\u~};
+
+\node[pied] (p6) [right=.5cm of p5] {\u-};
+
+\path (d0) edge (p1h.west);
+\path (d0) edge (p1b.west);
+
+\path (p1h.east) edge (d1);
+\path (p1b.east) edge (d1);
+
+\path (d1) edge (p2h.west);
+\path (d1) edge (p2b.west);
+
+\path (p2h.east) edge (d2);
+\path (p2b.east) edge (d2);
+
+\path (d2) edge (p3);
+\path (p3) edge (p4);
+\path (p4) edge (p5);
+\path (p5) edge (p6);
+
+\end{tikzpicture}
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 
-\end{frame}
+
+\section{Limitations et perspectives}
+
+\section{Aspects techniques}
+
+\begin{frame}{Solutions techniques}
+
+\begin{itemize}
+\item Langage de programmation: Python
+\item Moteur de bases de données: SQLite
+\item Mise à disposition de l'outil sur le web
+\end{itemize}
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{Diffusion et mise à disposition}
+
+\begin{itemize}
+\item Mode de diffusion
+
+\begin{itemize}
+\item code: GNU General Public License (GPL)
+\item dictionnaires
+\end{itemize}
+
+\item Développement?
+
+\item Hébergement de l'outil?
+
+\end{itemize}
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}{}
+
+\begin{itemize}
+\item
+\end{itemize}
+
+Deviner le type de vers, sans connaissance \emph{a priori}
+
+Aller vers un outil entièrement interactif: l'élève est invité à prendre connaissance des déductions de l'outil à chaque étape. Il peut infirmer ou confirmer des choix.
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{frame}{}
+
+\begin{itemize}
+\item
+\end{itemize}
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}
