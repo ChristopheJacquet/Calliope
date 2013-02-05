@@ -5,12 +5,13 @@
 
 \usepackage[francais]{babel}
 
-%\usepackage{fontspec}
+\usepackage[utf8]{luainputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+
 %\usepackage{xcolor}
 %\usepackage{luacolor}
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 
 \usepackage{tikz}
 \usetikzlibrary{automata, positioning}
@@ -23,6 +24,14 @@
 
 \newcommand{\syll}[1]{\fbox{#1 \hspace{5mm}}}
 
+\definecolor{diacrit}{rgb}{.85,0,0}
+
+\newcommand\overtxt[2]{\makebox[0cm][l]{\color{diacrit}#1}#2} 
+
+\newcommand\hlbr{\overtxt{\u~}}
+\newcommand\hllg{\overtxt{\=~}}
+
+\setbeamertemplate{navigation symbols}{}
 
 \title{Vers un outil pédagogique d'aide à la scansion}
 \author{Christophe Jacquet}
@@ -121,7 +130,7 @@ ex: Collatinus indique \latin{m{\u e}us} vs \latin{seu}
 \begin{tabular}{r c c c}
 				& Longues & Brèves & u/v, i/j \\
 \hline
-Collatinus		& \crx    & \crx   &  \\
+Collatinus (Gaffiot)		& \crx    & \crx   &  \\
 Pocket Oxfort Latin & \crx &       & \crx \\
 Lewis \& Short	& \crx    & \crx   & \crx \\
 \hline
@@ -140,7 +149,7 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 \item Enjeu:
 
 \begin{itemize}
-\item pour les noms et verbes, le dictionnaire donne le radical et le modèle de flexion
+\item pour les verbes, noms, adjectifs et pronoms, le dictionnaire donne le radical et le modèle de flexion
 \item or dans un texte, on rencontre des formes fléchies
 \end{itemize}
 
@@ -199,9 +208,14 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 
 Schéma du vers
 
+m\hlbr{e}a
+
+\hllg{\i}pse
+
+
 Essai de toutes les combinaisons possibles
 
-Algorithmiquement réaliste
+Algorithmiquement réaliste: pour un vers de 20 syllabes, la limite absolue du nombre de possibilités est $2^{20} \approx 1\,000\,000$.
 
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -253,13 +267,13 @@ Exemple: pentamètre
 
 \end{tikzpicture}
 
+Ici on commence à explorer $2 \times 2 \times 1 \times 1 \times 1 \times 1 = 4$ possibilités
+
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 
-
-\section{Limitations et perspectives}
 
 \section{Aspects techniques}
 
@@ -280,7 +294,15 @@ Exemple: pentamètre
 
 \begin{itemize}
 \item code: GNU General Public License (GPL)
-\item dictionnaires
+\item dictionnaires:
+
+\begin{itemize}
+\item Gaffiot de 1934: dans le domaine public depuis 2007 (70 ans après la mort de Félix Gaffiot)
+\item Pocket Oxford Latin?
+\item Lewis \& Short de 1879: idem Gaffiot
+\end{itemize}
+
+
 \end{itemize}
 
 \item Développement?
@@ -291,17 +313,27 @@ Exemple: pentamètre
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+\section{Limitations et perspectives}
+
+
 \begin{frame}{}
 
 \begin{itemize}
 \item
 \end{itemize}
 
+Ce que l'outil ne pourra jamais deviner:
+
+p\hlbr{o}p\u{u}lus vs p\hllg{o}p\u{u}lus
+
 Deviner le type de vers, sans connaissance \emph{a priori}
 
 Aller vers un outil entièrement interactif: l'élève est invité à prendre connaissance des déductions de l'outil à chaque étape. Il peut infirmer ou confirmer des choix.
 
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 
 
