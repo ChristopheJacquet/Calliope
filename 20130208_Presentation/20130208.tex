@@ -33,8 +33,11 @@
 
 \setbeamertemplate{navigation symbols}{}
 
-\title{Vers un outil pédagogique d'aide à la scansion}
-\author{Christophe Jacquet}
+
+\title{\mbox{ Vers un outil pédagogique d'aide à la scansion latine} }
+\author{Christophe Jacquet\\
+{\footnotesize Supélec, Département informatique}
+}
 \date{8 février 2013}
 
 
@@ -199,7 +202,7 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 \item Quelques exceptions
 \vfill
 \item Si on utilise le dictionnaire pour obtenir les longueurs par nature, on contraint déjà beaucoup le problème\\
-$\Rightarrow$ La détermination des longues par position n'est actuellement pas activée dans le démonstrateur
+$\Rightarrow$ La détermination des longues par position peut être désactivée
 \end{itemize}
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -331,7 +334,7 @@ Pour le pentamètre $2 \times 2 \times 1 \times 1 \times 1 \times 1 = 4$ possibi
 \vfill
 
 \item Programme conçu pour être extensible\\
-Exemple: ajout facile de type de vers
+Exemple: ajout facile de nouveaux types de vers
 
 {
 \footnotesize
@@ -342,7 +345,7 @@ V_HEXAMETRE = TypeVers("hd", [
     ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
-    P_INDIF_TROCHEE_SPONDEE
+    ChoixPied([P_TROCHEE, P_SPONDEE]),
 ])
 \end{verbatim}
 }
