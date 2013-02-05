@@ -3,6 +3,7 @@
 
 import codecs
 import sqlite3
+import sys
 
 def strlist(l):
     return u"[{0}]".format(u", ".join(unicode(x) for x in l))
@@ -281,8 +282,11 @@ def decoupe_pieds(vers):
             pieds[-1].ajouteConsonne(" ")
         elif voyelle(c):
             # diphtongue ?
-            if debut[-1] + c in diphtongues:
+            # TODO: à améliorer - il faudrait aussi vérifier que la voyelle courante
+            # n'a pas de marque de longueur
+            if pieds[-1].longueur == 0 and debut[-1] + c in diphtongues:
                 pieds[-1].voyelle += c
+                pieds[-1].longueur = 2
             # suit q ?
             elif debut[-1] + c == "qu":
                 pieds[-1].ajouteConsonne(c)
@@ -397,7 +401,12 @@ class Dictionnaire:
         c.execute("SELECT longueurs from mots WHERE mot=?", (mot,))
         for r in c:
             return r["longueurs"]
-        return None
+        if mot.endswith("que"):
+            r = self.cherche(mot[:-3])
+            if r != None:
+                return r + "que"
+            else:
+                return None
 
 
 
@@ -561,13 +570,26 @@ def main():
     
     #f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
     #f = codecs.open("catulle_hendecasyllabe_phalecien.txt", "r", encoding="utf-8")
-    f = codecs.open("distique_elegiaque.txt", "r", encoding="utf-8")
+    #f = codecs.open("distique_elegiaque.txt", "r", encoding="utf-8")
     
-    for r in scande_texte("hdpd", f, mode="html"):
+    #f = codecs.open("ovide_metamorphoses.txt", "r", encoding="utf-8")
+    f = codecs.open(sys.argv[1], "r", encoding="utf-8")
+    
+    prem = f.readline().strip()
+    if prem.startswith("#"):
+        type = prem[1:]
+    else:
+        raise Exception("Type de vers non indiqué")
+
+    for r in scande_texte(type, f, mode="txt"):
         print codecs.encode(r, "utf-8")
 
-    for r in scande_texte("hd", [u"ille, datis vadibus qui rur' extractus in urb' est"]):
-        print codecs.encode(r, "utf-8")
+    
+    #for r in scande_texte("hd", f, mode="txt"):
+    #    print codecs.encode(r, "utf-8")
+
+    #for r in scande_texte("hd", [u"ille, datis vadibus qui rur' extractus in urb' est"]):
+    #    print codecs.encode(r, "utf-8")
 
 if __name__ == "__main__":
     main()

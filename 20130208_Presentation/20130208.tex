@@ -196,6 +196,9 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 \begin{itemize}
 \item Une voyelle sans longueur par nature, suivie de deux consonnes, doit être allongée
 \item Quelques exceptions
+\vfill
+\item Si on utilise le dictionnaire pour obtenir les longueurs par nature, on contraint déjà beaucoup le problème\\
+$\Rightarrow$ Cette étape n'est actuellement pas activée dans le démonstrateur
 \end{itemize}
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -203,28 +206,52 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 \subsection{Alignement avec un schéma de vers}
 
 \begin{frame}{Alignement avec un schéma de vers}
+\small
 
-%\syll{} \syll{\}
+Exemple d'\structure{hexamètre dactylique} (Ovide, \emph{Métamorphoses}):
 
-Schéma du vers
+\centerline{\latin{Spem sine corpore amat, corpus putat esse quod unda est.}}
 
-m\hlbr{e}a
+\begin{itemize}
 
-\hllg{\i}pse
+\item
+Première étape (découpage en pieds et contraintes de longueur):
 
+\mbox{\footnotesize\latin{
+spem s/in/e c/\hllg{o}rp/or/e am/at, c/\hllg{o}rp/us p/ut/at /\hllg{e}ss/e qu/od /\hllg{u}nd/a \hllg{e}st.
+}}
 
-Essai de toutes les combinaisons possibles
+\item
+Schéma de l'hexamètre:\\ 
+{\footnotesize Cinq dactyles ({\color{diacrit}\=\,\u\,\u\,\!}) ou spondées ({\color{diacrit}\=\,\=\,\!}), puis un spondée ou trochée ({\color{diacrit}\=\,\u\,\!}).
+}
 
-Algorithmiquement réaliste: pour un vers de 20 syllabes, la limite absolue du nombre de possibilités est $2^{20} \approx 1\,000\,000$.
+\item
+Essai de toutes les combinaisons possibles à partir du début \\
+{\footnotesize Il y en a ici $2^5 \times 2 = 64$ (très raisonnable)}
+
+\item Une seule combinaison conforme aux contraintes:
+
+\mbox{\footnotesize\latin{
+sp\hllg{e}m s/\hlbr{\i}n/\hlbr{e} c/\hllg{o}rp/\hlbr{o}r/e \hlbr{a}m/\hllg{a}t, c/\hllg{o}rp/\hllg{u}s p/\hlbr{u}t/\hlbr{a}t /\hllg{e}ss/\hlbr{e} qu/\hlbr{o}d /\hllg{u}nd/a est.
+}}
+
+\end{itemize}
+%Algorithmiquement réaliste: pour un vers de 20 syllabes, la limite absolue du nombre de possibilités est $2^{20} \approx 1\,000\,000$.
 
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\begin{frame}{Incertitudes}
+\begin{frame}{Généralisation et formalisation}
+
+\begin{itemize}
+
+\item
+Chaque type de vers est décrit «~formellement~» (de façon déclarative)\\
 
 Exemple: pentamètre
 
-
+\vspace{3mm}
 
 \begin{tikzpicture}[->, node distance=1cm]
 \tikzstyle{div}=[circle,thick,draw=black,fill=black,inner sep=0pt,minimum size=.5mm]
@@ -267,7 +294,18 @@ Exemple: pentamètre
 
 \end{tikzpicture}
 
-Ici on commence à explorer $2 \times 2 \times 1 \times 1 \times 1 \times 1 = 4$ possibilités
+Pour le pentamètre $2 \times 2 \times 1 \times 1 \times 1 \times 1 = 4$ possibilités.
+
+\vfill
+
+\item Stratégie:
+
+\begin{itemize}
+\item essai exhaustif des combinaisons possibles (nombre toujours raisonnable)
+\item abandon d'une combinaison dès qu'elle ne respecte pas les contraintes a priori
+\end{itemize}
+
+\end{itemize}
 
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -283,6 +321,23 @@ Ici on commence à explorer $2 \times 2 \times 1 \times 1 \times 1 \times 1 = 4$
 \item Langage de programmation: Python
 \item Moteur de bases de données: SQLite
 \item Mise à disposition de l'outil sur le web
+
+\vfill
+
+\item Programme conçu pour être extensible\\
+Exemple: 
+
+\begin{verbatim}
+V\_HEXAMETRE = TypeVers("hd", [
+    ChoixPied([P\_DACTYLE, P\_SPONDEE]),
+    ChoixPied([P_DACTYLE, P_SPONDEE]),
+    ChoixPied([P_DACTYLE, P_SPONDEE]),
+    ChoixPied([P_DACTYLE, P_SPONDEE]),
+    ChoixPied([P_DACTYLE, P_SPONDEE]),
+    P_INDIF_TROCHEE_SPONDEE
+])
+\end{verbatim}
+
 \end{itemize}
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -330,6 +385,8 @@ p\hlbr{o}p\u{u}lus vs p\hllg{o}p\u{u}lus
 Deviner le type de vers, sans connaissance \emph{a priori}
 
 Aller vers un outil entièrement interactif: l'élève est invité à prendre connaissance des déductions de l'outil à chaque étape. Il peut infirmer ou confirmer des choix.
+
+Prise en compte de tout type de vers! (montrer code?)
 
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
