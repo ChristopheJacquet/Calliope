@@ -4,6 +4,7 @@
 import codecs
 import sqlite3
 import sys
+import os, inspect
 
 def strlist(l):
     return u"[{0}]".format(u", ".join(unicode(x) for x in l))
@@ -34,6 +35,13 @@ class Pied:
     
     def ajouteConsonne(self, c):
         self.consonnes += c
+    
+    def lesConsonnes(self):
+        conso = ""
+        for c in self.consonnes:
+            if c in "bcdfghjklmnpqrstvwxz":
+                conso += c
+        return conso
     
     def __str__(self):
         if self.longueur == 2:
@@ -324,6 +332,16 @@ def quantites_evidentes(pieds):
     return resultat
 """
 
+def applique_allongements(pieds):
+    for p in pieds[1:]:
+        if p.longueur == 0:
+            conso = p.lesConsonnes()
+            if len(conso) == 2 and not conso[1] in "rl":
+                p.longueur = 2
+            if len(conso) > 2:
+                p.longueur = 2
+
+
 def quantites_apriori(pieds):
     return map(lambda p: p.longueur, pieds[1:])
 
@@ -393,7 +411,8 @@ def formate_scansion(texte, pieds, quantites, mode):
 
 class Dictionnaire:
     def __init__(self):
-        self.conn = sqlite3.connect('mots.sqlite')
+        path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        self.conn = sqlite3.connect(path + '/mots.sqlite')
         self.conn.row_factory = sqlite3.Row
     
     def cherche(self, mot):
@@ -483,18 +502,8 @@ def scande(vers, type_vers, mode = "txt"):
     
     pieds = decoupe_pieds(versPondere)
 
-    ##print u" / ".join(map(str, pieds))
+    applique_allongements(pieds)
     
-    ###versSimplifie = remplace_diphtongues(versNormalise)
-    #print( u"Simplifié : {0}".format(versSimplifie) )
-    
-    ###versElide = applique_elisions(versSimplifie)
-    #print( u"Élidé :     {0}".format(versElide) )
-    
-    ###pieds = decoupe_pieds(versElide)
-    #print( u"Pieds :     {0}".format(strlist(pieds)) )
-    
-    ###quantites = quantites_evidentes(pieds)
     quantites = quantites_apriori(pieds)
     
     res_quantites_apriori = formate_scansion(u"Quantités a priori", pieds, quantites, mode)
