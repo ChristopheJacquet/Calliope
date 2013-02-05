@@ -26,7 +26,7 @@ def application(env, start_response):
 
     #yield repr(vers)
 
-    for r in scande_texte(type, vers):
+    for r in scande_texte(type, vers, "html"):
         yield codecs.encode(r, "utf-8") + "\n"
 
 #    yield repr(post)
