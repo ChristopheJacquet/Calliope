@@ -61,6 +61,7 @@
 \begin{itemize}
 \item Explorer l'aide informatique à la scansion
 \item Un outil entièrement automatique semble inaccessible
+\item Outil vu comme une aide pédagogique
 \end{itemize}
 
 \end{itemize}
@@ -117,8 +118,8 @@ Deux étapes:
 \item Ce que peut indiquer un dictionnaire:
 
 \begin{itemize}
-\item les voyelles longues ou brèves \structure{par nature}
-\item les \lettre{e} en hiatus devant un \lettre{u} \\
+\item une voyelle longue ou brève \structure{par nature}
+\item une voyelle en hiatus devant une autre \\
 ex: Collatinus indique \latin{m{\u e}us} vs \latin{seu}
 \item la valeur consonne ou voyelle de u/v et i/j
 \end{itemize}
@@ -130,7 +131,7 @@ ex: Collatinus indique \latin{m{\u e}us} vs \latin{seu}
 \begin{tabular}{r c c c}
 				& Longues & Brèves & u/v, i/j \\
 \hline
-Collatinus (Gaffiot)		& \crx    & \crx   &  \\
+Gaffiot (Collatinus)		& \crx    & \crx   &  \\
 Pocket Oxfort Latin & \crx &       & \crx \\
 Lewis \& Short	& \crx    & \crx   & \crx \\
 \hline
@@ -182,7 +183,7 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 \item une diphtongue (\lettre{ae}, \lettre{oe}, \lettre{eu}, \lettre{au}) compte pour une seule voyelle (longue)
 \item ... sauf si la première voyelle est marquée brève (hiatus)
 \item \lettre{u} dans \lettre{qu} ne compte pas comme voyelle
-\item une voyelle en début de mot après une voyelle s'élide
+\item une voyelle en fin de mot avant une voyelle s'élide
 \end{itemize}
 
 \end{itemize}
@@ -198,7 +199,7 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 \item Quelques exceptions
 \vfill
 \item Si on utilise le dictionnaire pour obtenir les longueurs par nature, on contraint déjà beaucoup le problème\\
-$\Rightarrow$ Cette étape n'est actuellement pas activée dans le démonstrateur
+$\Rightarrow$ La détermination des longues par position n'est actuellement pas activée dans le démonstrateur
 \end{itemize}
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -233,7 +234,7 @@ Essai de toutes les combinaisons possibles à partir du début \\
 \item Une seule combinaison conforme aux contraintes:
 
 \mbox{\footnotesize\latin{
-sp\hllg{e}m s/\hlbr{\i}n/\hlbr{e} c/\hllg{o}rp/\hlbr{o}r/e \hlbr{a}m/\hllg{a}t, c/\hllg{o}rp/\hllg{u}s p/\hlbr{u}t/\hlbr{a}t /\hllg{e}ss/\hlbr{e} qu/\hlbr{o}d /\hllg{u}nd/a est.
+sp\hllg{e}m s/\hlbr{\,\i}n/\hlbr{e} c/\hllg{o}rp/\hlbr{o}r/e \hlbr{a}m/\hllg{a}t, c/\hllg{o}rp/\hllg{u}s p/\hlbr{u}t/\hlbr{a}t /\hllg{e}ss/\hlbr{e} qu/\hlbr{o}d /\hllg{u}nd/a est.
 }}
 
 \end{itemize}
@@ -301,7 +302,8 @@ Pour le pentamètre $2 \times 2 \times 1 \times 1 \times 1 \times 1 = 4$ possibi
 \item Stratégie:
 
 \begin{itemize}
-\item essai exhaustif des combinaisons possibles (nombre toujours raisonnable)
+\item essai exhaustif des combinaisons possibles \\
+{\footnotesize (nombre toujours raisonnable)}
 \item abandon d'une combinaison dès qu'elle ne respecte pas les contraintes a priori
 \end{itemize}
 
@@ -315,21 +317,27 @@ Pour le pentamètre $2 \times 2 \times 1 \times 1 \times 1 \times 1 = 4$ possibi
 
 \section{Aspects techniques}
 
-\begin{frame}{Solutions techniques}
+\subsection*{}
+
+\begin{frame}[fragile]
+\frametitle{Solutions techniques}
+
+%\frametitle{toto}
 
 \begin{itemize}
 \item Langage de programmation: Python
 \item Moteur de bases de données: SQLite
-\item Mise à disposition de l'outil sur le web
 
 \vfill
 
 \item Programme conçu pour être extensible\\
-Exemple: 
+Exemple: ajout facile de type de vers
 
+{
+\footnotesize
 \begin{verbatim}
-V\_HEXAMETRE = TypeVers("hd", [
-    ChoixPied([P\_DACTYLE, P\_SPONDEE]),
+V_HEXAMETRE = TypeVers("hd", [
+    ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
     ChoixPied([P_DACTYLE, P_SPONDEE]),
@@ -337,9 +345,15 @@ V\_HEXAMETRE = TypeVers("hd", [
     P_INDIF_TROCHEE_SPONDEE
 ])
 \end{verbatim}
+}
+
+\vfill
+
+\item Accès via une interface web
 
 \end{itemize}
-\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{frame} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \begin{frame}{Diffusion et mise à disposition}
@@ -369,36 +383,113 @@ V\_HEXAMETRE = TypeVers("hd", [
 
 
 
-\section{Limitations et perspectives}
+\section{Limites et perspectives}
+
+\subsection*{}
 
 
-\begin{frame}{}
+\begin{frame}{Limites actuelles du démonstrateur, \\ améliorations projetées}
 
 \begin{itemize}
-\item
+\item \structure{Dictionnaire:} actuellement seules les longues sont indiquées\\
+$\Rightarrow$ Intégration d'un dictionnaire plus complet: Lewis \& Short?
+
+\vfill
+
+\item Non-détection des \structure{voyelles en hiatus} {\small (découle du point précédent)}
+
+\vfill
+
+\item Seules quelques \structure{règles simples} prises en compte actuellement\\
+$\Rightarrow$ Ajouter des règles?\\
+\hfill Compromis entre exhaustivité et lisibilité du programme
+
 \end{itemize}
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Ce que l'outil ne pourra jamais deviner:
 
-p\hlbr{o}p\u{u}lus vs p\hllg{o}p\u{u}lus
+\begin{frame}{Limites inhérentes à ce type d'outil}
 
-Deviner le type de vers, sans connaissance \emph{a priori}
+\begin{itemize}
+\item \structure{Homographes}\\
+Exemple: p\hlbr{o}p\u{u}lus vs p\hllg{o}p\u{u}lus \\
+$\Rightarrow$ le dictionnaire ne doit contenir que l'indication pop\u{u}lus
 
-Aller vers un outil entièrement interactif: l'élève est invité à prendre connaissance des déductions de l'outil à chaque étape. Il peut infirmer ou confirmer des choix.
+\vfill
 
-Prise en compte de tout type de vers! (montrer code?)
+\item \structure{Exceptions rares:} difficiles à prendre en compte sous peine de sous-contraindre la solution
 
+\vfill
+
+\item \structure{Règles enfreintes par l'auteur:} comment privilégier le non-respect d'une règle plutôt qu'une autre?
+
+\vfill
+
+\item \structure{Type de vers non précisé:} essayer de réaliser l'alignement avec tous les types de vers connus? Explosion du nombre de propositions?
+
+\end{itemize}
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 
+\begin{frame}{Intérêt pédagogique actuel}
 
-\begin{frame}{}
+Même si l'outil ne donne pas automatiquement une solution unique à coup sûr, il fait des propositions qui peuvent guider l'étudiant:
 
 \begin{itemize}
-\item
+\item les longueurs par nature
+\item les longueurs par position
+\item une décomposition en syllabes \emph{a priori}
 \end{itemize}
+
+\vfill
+
+Un enseignant peut exploiter les limites de l'outil pour montrer les chausse-trappes de l'exercice.
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{frame}{Perspective: un outil interactif?}
+
+Plutôt que proposer directement des résultats, un outil pédagogique pourrait engager un \structure{dialogue} avec l'élève:
+
+\begin{itemize}
+\item donner différentes propositions pour les homographes (cf. p\hlbr{o}p\u{u}lus/p\hllg{o}p\u{u}lus) avec les définitions
+
+\item demander à l'élève de confirmer ou d'infirmer chaque choix: indication des longueurs, découpage en syllabes
+
+\item montrer les implications qu'une ébauche de scansion a sur le sens du texte:\\ par exemple, cas déduit d'une longueur de désinence
+
+\end{itemize}
+
+\vfill
+
+Cela permettrait de \structure{faire des hypothèses}, d'en voir rapidement les \structure{conséquences}, et de \structure{revenir en arrière} le cas échéant.
+
+\end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\section*{}
+
+\begin{frame}{Résumé}
+
+\begin{itemize}
+\item Un outil simple d'aide à la scansion
+\item Limité mais extensible
+\item Développement en un vrai outil pédagogique?
+\end{itemize}
+
+\vfill
+
+\uncover<2->{
+\centerline{\structure{Merci de votre attention}}
+}
+
+\vfill
+
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \end{document}
