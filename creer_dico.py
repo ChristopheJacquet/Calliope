@@ -22,13 +22,19 @@ c.execute('CREATE TABLE mots (mot PRIMARY KEY, longueurs)')
 
 # ABACI ; abaci_ ; ''-,3pp ; abacus, abaci_ : m
 
-motif = re.compile("^(\w+)\s+;.([A-Za-z_\(\)]+)\s")
+#motif = re.compile("^(\w+)\s+;.([A-Za-z_\(\)]+)\s")     # insérer même mots ambigus
+motif = re.compile("^(\w+)\s+;(.)([A-Za-z_\(\)]+)\s")
+
+ambigus = 0
 
 for line in mots:
     m = motif.match(line)
     if m!= None:
         mot = m.group(1).lower()
-        longueurs = m.group(2).replace("(", "").replace(")", "").lower()
+        longueurs = m.group(3).replace("(", "").replace(")", "").lower()
+        if m.group(2) != " ":
+            longueurs = longueurs.replace("'", "").replace("_", "")
+            ambigus += 1
         #print(u"{0} {1}".format(mot, longueurs))
         c.execute("INSERT INTO mots (mot, longueurs) VALUES (?, ?)", (mot, longueurs))
     else:
@@ -44,3 +50,4 @@ c.close()
 mots.close()
 
 
+print( "{0} ambigus".format(ambigus) )

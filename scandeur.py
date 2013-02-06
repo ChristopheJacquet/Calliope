@@ -358,15 +358,18 @@ def formate_scansion(vers, pieds, quantites):
     return vers
 """
 
+marqueurs_quantites = {
+    0: u"",
+    1: u"\u0306",
+    2: u"\u0304",
+}
+
 def formate_scansion(texte, pieds, quantites, mode):
     if mode == "txt":
         res = pieds[0].consonnes
         for i in range(1,(len(pieds))):
             res += pieds[i].voyelle
-            if quantites[i-1] == 1:
-                res += u"'"
-            elif quantites[i-1] == 2:
-                res += u"_"
+            res += marqueurs_quantites[quantites[i-1]]
             res += pieds[i].consonnes
             if i != len(pieds)-1:
                 res += "/ "
@@ -409,6 +412,8 @@ def formate_scansion(texte, pieds, quantites, mode):
         return u'<table><tr>{0}</tr>\n       <tr>{1}</tr></table>\n'.format(h, b)
 
 
+enclitiques = ["que", "ne", "ve"]
+
 class Dictionnaire:
     def __init__(self):
         path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -420,12 +425,13 @@ class Dictionnaire:
         c.execute("SELECT longueurs from mots WHERE mot=?", (mot,))
         for r in c:
             return r["longueurs"]
-        if mot.endswith("que"):
-            r = self.cherche(mot[:-3])
-            if r != None:
-                return r + "que"
-            else:
-                return None
+        for e in enclitiques:
+            if mot.endswith(e):
+                r = self.cherche(mot[:-len(e)])
+                if r != None:
+                    return r + e
+                else:
+                    return None
 
 
 
