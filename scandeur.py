@@ -337,7 +337,7 @@ def formate_scansion(texte, longueurs_pieds, pieds, quantites, mode):
             
             if i != len(pieds)-1:
                 h += u'<td></td>'
-                b += u'<td>{0}</td>'.separateur()
+                b += u'<td>{0}</td>'.format(separateur())
         
         return u'<table><tr>{0}</tr>\n       <tr>{1}</tr></table>\n'.format(h, b)
 
