@@ -320,7 +320,7 @@ def formate_scansion(texte, longueurs_pieds, pieds, quantites, mode):
                 symbole = u""
             
             if pieds[i].origineLongueur != None:
-                cls = u'class="apriori_{0}"'.format(origineLongueur)
+                cls = u'class="apriori_{0}"'.format(pieds[i].origineLongueur)
             else:
                 cls = ""
             
