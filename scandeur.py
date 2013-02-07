@@ -10,22 +10,6 @@ def strlist(l):
     return u"[{0}]".format(u", ".join(unicode(x) for x in l))
 
 
-"""
-class Pied:
-    def __init__(self, voyelle, position):
-        self.voyelle = voyelle
-        self.position = position
-        self.consonnes = u""
-    
-    def ajouteConsonne(self, c):
-        self.consonnes += c
-    
-    def __str__(self):
-        return u"[{0}:{1} {2}]".format(self.position, self.voyelle, self.consonnes)
-    
-    def __repr__(self):
-        return self.__str__()
-"""
 
 class Pied:
     def __init__(self, voyelle):
@@ -235,47 +219,6 @@ def normalise(vers):
     
     return resultat
 
-# si un mot se termine par une voyelle, et si le mot suivant commence par
-# une voyelle, alors on supprime la voyelle finale du premier mot
-"""
-def applique_elisions(vers):
-    resultat = u""
-    
-    for i in range(0, len(vers)-2):
-        if voyelle(vers[i]) and vers[i+1] == u" " and voyelle(vers[i+2]):
-            continue
-        resultat += vers[i]
-        
-    resultat += vers[-2:]
-    
-    return resultat
-"""
-
-
-# remplace les diphtongues par des voyelles uniques
-# qv devient qu
-"""
-def remplace_diphtongues(vers):
-    return vers.replace(u"qu", u"q").replace(u" iu", u" ju").replace(u"ae", u"æ").replace(u"eu", u"ε").replace(u"au", u"α").replace(u"oe", u"œ")
-    
-def diphtongue(c):
-    return c in u"æœαε"
-"""
-
-
-"""
-def decoupe_pieds(vers):
-    vers += u"#"
-    pieds = [Pied(None, None)]
-    for i in range(len(vers)):
-        c = vers[i]
-        if voyelle(c) or c == u"#":
-            pieds += [Pied(c, i)]
-        elif c != " ":
-            pieds[-1].ajouteConsonne(c)
-    return pieds[1:-1]
-"""
-
 
 def decoupe_pieds(vers):
     pieds = [Pied(None)]
@@ -315,23 +258,6 @@ def decoupe_pieds(vers):
 
     
 
-"""
-def quantites_evidentes(pieds):
-    resultat = []
-    for p in pieds:
-        q = 0
-        # une voyelle suivie de 2 consonnes (ou plus) est allongée, mais pas 
-        # systématiquement si sur les 2, la 2e est un r ou un l
-        if len(p.consonnes) == 2 and not p.consonnes[1] in "rl":
-            q = 2
-        elif len(p.consonnes) > 2:
-            q = 2
-        if diphtongue(p.voyelle):
-            q = 2
-        resultat += [q]
-    return resultat
-"""
-
 def applique_allongements(pieds):
     for p in pieds[1:]:
         if p.longueur == 0:
@@ -345,18 +271,6 @@ def applique_allongements(pieds):
 def quantites_apriori(pieds):
     return map(lambda p: p.longueur, pieds[1:])
 
-
-"""
-def formate_scansion(vers, pieds, quantites):
-    for i in range(len(pieds)-1, -1, -1):
-        if quantites[i] > 0:   # si une quantité a été affectée
-            if quantites[i] == 1:
-                c = u"\u0306"
-            elif quantites[i] == 2:
-                c = u"\u0304"
-            vers = vers[:pieds[i].position+1] + c + vers[pieds[i].position+1:]
-    return vers
-"""
 
 marqueurs_quantites = {
     0: u"",
@@ -450,44 +364,10 @@ def recherche_dictionnaire(vers):
             debug += [l]
             res += [l]
     #print u"Recherche dans le dictionnaire: " + u" ".join(debug)
-    res = u" ".join(res)
+    res = u" ".join(res)  #.replace("_", "")
     return (res, non_trouves)
 
 
-
-''' DUPLICAT
-def decoupe_pieds2(vers):
-    pieds = [Pied2(None)]
-    debut = u"##"
-    
-    diphtongues = ["ae", "oe", "eu", "au"]
-    
-    for c in vers:
-        if c == '_':
-            pieds[-1].longueur = 2
-        elif c == ' ':
-            pieds[-1].ajouteConsonne(" ")
-        elif voyelle(c):
-            # diphtongue ?
-            if debut[-1] + c in diphtongues:
-                pieds[-1].voyelle += c
-            # suit q ?
-            elif debut[-1] + c == "qu":
-                pieds[-1].ajouteConsonne(c)
-            # en tête de mot avec élision ?
-            elif voyelle(debut[-2]) and debut[-1] == " ":
-                pieds[-1].ajouteConsonne(c)
-            # "vraie" voyelle ?
-            else:
-                pieds += [Pied2(c)]
-        else:
-            pieds[-1].ajouteConsonne(c)
-        
-        if c != '_':
-            debut += c
-    
-    return pieds[1:]
-'''
 
 def par(texte, mode):
     if mode == "txt":
@@ -526,7 +406,7 @@ def scande(vers, type_vers, mode = "txt"):
         return (False, txt + par(u"Pas de solution trouvée", mode) )
     else:
         for (p, forme_vers) in possibilites:
-            res = formate_scansion(u"{0:10}".format(forme_vers), pieds, p, mode)
+            res = formate_scansion(u"{0:18}".format(forme_vers), pieds, p, mode)
             #print( u"Possibilité :  {0}\t\t{1}".format(res, forme_vers) )
             #txt += u"hello\n"
             txt += res
@@ -578,16 +458,6 @@ def scande_texte(type, lignes, mode="txt"):
 
 
 def main():
-    # vers d'Horace...
-    #scande(u"Āltĕră /jām tĕrĭ/tūr bēl/līs cī/vīlĭbŭs /ǣtas", V_HEXAMETRE)
-    
-    #scande(u"sŭīs ĕt īpsă Rōmă vīrĭbūs rŭīt", V_SENAIRE_IAMBIQUE)
-    
-    #f = codecs.open("horace_brut.txt", "r", encoding="utf-8")
-    #f = codecs.open("catulle_hendecasyllabe_phalecien.txt", "r", encoding="utf-8")
-    #f = codecs.open("distique_elegiaque.txt", "r", encoding="utf-8")
-    
-    #f = codecs.open("ovide_metamorphoses.txt", "r", encoding="utf-8")
     f = codecs.open(sys.argv[1], "r", encoding="utf-8")
     
     prem = f.readline().strip()
@@ -599,17 +469,6 @@ def main():
     for r in scande_texte(type, f, mode="txt"):
         print codecs.encode(r, "utf-8")
 
-    
-    #for r in scande_texte("hd", f, mode="txt"):
-    #    print codecs.encode(r, "utf-8")
-
-    #for r in scande_texte("hd", [u"ille, datis vadibus qui rur' extractus in urb' est"]):
-    #    print codecs.encode(r, "utf-8")
 
 if __name__ == "__main__":
     main()
-
-
-
-# À faire :
-# - distinction voyelles/consolles (i/j, u/v)
