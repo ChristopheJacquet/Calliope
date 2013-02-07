@@ -285,7 +285,7 @@ marqueurs_quantites = {
 def formate_scansion(texte, longueurs_pieds, pieds, quantites, mode):
     lp_singleton = [longueurs_pieds]
     def separateur():
-        longueur_pieds = lp_singleton[0]
+        longueurs_pieds = lp_singleton[0]
         separateur = "/ "
         # marque de séparation entre pieds
         if longueurs_pieds != []:
