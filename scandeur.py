@@ -16,6 +16,7 @@ class Pied:
         self.voyelle = voyelle
         self.consonnes = u""
         self.longueur = 0
+        self.origineLongueur = None
     
     def ajouteConsonne(self, c):
         self.consonnes += c
@@ -45,14 +46,14 @@ class TypeVers:
         self.abbr = abbr
         
     def scande(self, quantites):
-        return self.scande_rec([], "", quantites, self.motif_pieds)
+        return self.scande_rec([], "", [], quantites, self.motif_pieds)
     
-    def scande_rec(self, gauche, gauche_pieds, quantites, motif_droite):
+    def scande_rec(self, gauche, gauche_pieds, gauche_longueurs, quantites, motif_droite):
         #print u"scande_rec({0}, {1})".format(quantites, strlist(motif_droite))
         if motif_droite == []:
             if quantites == []:
                 #print "==> return fini: {0}".format(gauche)
-                return [ (gauche, gauche_pieds) ]
+                return [ (gauche, gauche_pieds, gauche_longueurs) ]
             else:
                 return None
         else:
@@ -64,7 +65,7 @@ class TypeVers:
             
             possibilites = []
             for (sp, spn, r) in possibilites_pied:
-                scansions = self.scande_rec(gauche + sp, gauche_pieds + spn, r, reste_motif)
+                scansions = self.scande_rec(gauche + sp, gauche_pieds + spn, gauche_longueurs + [len(sp)], r, reste_motif)
                 #if scansions_reste == True:
                 #    possibilites += [ sp ]
                 if scansions != None:
@@ -128,7 +129,7 @@ P_IAMBE = TypePied([1, 2], u'i')
 P_ANAPESTE = TypePied([1, 1, 2], u'a')
 P_TRIBRAQUE = TypePied([1, 1, 1], u'3')
 P_PROCELEUSMATIQUE = TypePied([1, 1, 1, 1], u'p')  # procéleusmatique
-P_INDIF_TROCHEE_SPONDEE = TypePied([2, 0], u't/s')
+P_INDIF_TROCHEE_SPONDEE = TypePied([2, 0], u'-*')
 
 V_HEXAMETRE = TypeVers("hd", [
     ChoixPied([P_DACTYLE, P_SPONDEE]),
@@ -229,6 +230,7 @@ def decoupe_pieds(vers):
     for c in vers:
         if c == '_':
             pieds[-1].longueur = 2
+            pieds[-1].origineLongueur = "nature"
         elif c == ' ':
             pieds[-1].ajouteConsonne(" ")
         elif voyelle(c):
@@ -264,8 +266,10 @@ def applique_allongements(pieds):
             conso = p.lesConsonnes()
             if len(conso) == 2 and not conso[1] in "rl":
                 p.longueur = 2
+                p.origineLongueur = "position"
             if len(conso) > 2:
                 p.longueur = 2
+                p.origineLongueur = "position"
 
 
 def quantites_apriori(pieds):
@@ -278,7 +282,19 @@ marqueurs_quantites = {
     2: u"\u0304",
 }
 
-def formate_scansion(texte, pieds, quantites, mode):
+def formate_scansion(texte, longueurs_pieds, pieds, quantites, mode):
+    lp_singleton = [longueurs_pieds]
+    def separateur():
+        longueur_pieds = lp_singleton[0]
+        separateur = "/ "
+        # marque de séparation entre pieds
+        if longueurs_pieds != []:
+            longueurs_pieds[0] -= 1
+            if longueurs_pieds[0] == 0:
+                separateur = "// "
+                lp_singleton[0] = longueurs_pieds[1:]
+        return separateur
+
     if mode == "txt":
         res = pieds[0].consonnes
         for i in range(1,(len(pieds))):
@@ -286,7 +302,7 @@ def formate_scansion(texte, pieds, quantites, mode):
             res += marqueurs_quantites[quantites[i-1]]
             res += pieds[i].consonnes
             if i != len(pieds)-1:
-                res += "/ "
+                res += separateur()
         return u"{0}\t\t{1}\n".format(texte, res)
         
     elif mode == "html":
@@ -303,8 +319,8 @@ def formate_scansion(texte, pieds, quantites, mode):
             else:
                 symbole = u""
             
-            if pieds[i].longueur != 0:
-                cls = u'class="apriori"'
+            if pieds[i].origineLongueur != None:
+                cls = u'class="apriori_{0}"'.format(origineLongueur)
             else:
                 cls = ""
             
@@ -321,7 +337,7 @@ def formate_scansion(texte, pieds, quantites, mode):
             
             if i != len(pieds)-1:
                 h += u'<td></td>'
-                b += u'<td>/</td>'
+                b += u'<td>{0}</td>'.separateur()
         
         return u'<table><tr>{0}</tr>\n       <tr>{1}</tr></table>\n'.format(h, b)
 
@@ -392,21 +408,22 @@ def scande(vers, type_vers, mode = "txt"):
     
     quantites = quantites_apriori(pieds)
     
-    res_quantites_apriori = formate_scansion(u"Quantités a priori", pieds, quantites, mode)
+    res_quantites_apriori = formate_scansion(u"Quantités a priori", [], pieds, quantites, mode)
     if mode == "txt":
         txt += res_quantites_apriori
     
     #print( u"Longueurs : {0}".format(res) )
     
     possibilites = type_vers.scande( quantites )
+    #print possibilites
     
     if possibilites == None or possibilites == []:
         if mode == "html":
             txt += res_quantites_apriori
         return (False, txt + par(u"Pas de solution trouvée", mode) )
     else:
-        for (p, forme_vers) in possibilites:
-            res = formate_scansion(u"{0:18}".format(forme_vers), pieds, p, mode)
+        for (p, forme_vers, longueurs_pieds) in possibilites:
+            res = formate_scansion(u"{0:18}".format(forme_vers), longueurs_pieds, pieds, p, mode)
             #print( u"Possibilité :  {0}\t\t{1}".format(res, forme_vers) )
             #txt += u"hello\n"
             txt += res
