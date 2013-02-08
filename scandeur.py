@@ -41,9 +41,10 @@ class Pied:
 
 
 class TypeVers:
-    def __init__(self, abbr, motif_pieds):
+    def __init__(self, abbr, motif_pieds, cesure = None):
         self.motif_pieds = motif_pieds
         self.abbr = abbr
+        self.cesure = cesure
         
     def scande(self, quantites):
         return self.scande_rec([], "", [], quantites, self.motif_pieds)
@@ -461,6 +462,8 @@ def scande_texte(type, lignes, mode="txt"):
     for l in lignes:
         if mode=="html": yield(u'<div class="vers">')
         l = l.strip()
+        if len(l) == 0:
+            continue
         type_vers = schema_fun(i)
         yield par( u"[{0}] {1}".format(type_vers.abbr, l), mode )
         (ok, msg) = scande(l, type_vers, mode)

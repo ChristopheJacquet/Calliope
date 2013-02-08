@@ -52,9 +52,9 @@
 \item La scansion latine: position du problème
 
 \begin{itemize}
-\item un vers est décomposé en syllabes,\\ dont chacune peut être longue ou brève
-\item un type de poème impose un ensemble de schémas possibles pour un vers, en termes de longueurs de syllabes
-\item \structure{scander un vers}: l'aligner sur l'un des schémas possibles
+\item Un vers est décomposé en syllabes,\\ dont chacune peut être longue ou brève
+\item Un type de poème impose un ensemble de schémas possibles pour un vers, en termes de longueurs de syllabes
+\item \structure{Scander un vers}: l'aligner sur l'un des schémas possibles
 \end{itemize}
 
 \vfill
@@ -90,11 +90,11 @@ Deux étapes:
 \begin{enumerate}
 \item Pré-traitement du vers:
 \begin{itemize}
-\item découper le vers en syllabes
-\item contraindre au maximum les longueurs de syllabes qui ne souffrent (quasiment) pas d'exceptions
+\item Découper le vers en syllabes
+\item Contraindre au maximum les longueurs de syllabes qui ne souffrent (quasiment) pas d'exceptions
 \end{itemize}
 
-\item Alignement avec un schéma de vers
+\item Alignement avec un schéma de vers:
 
 \begin{itemize}
 \item On suppose connu le type de vers; on détermine alors les longueurs manquantes
@@ -114,17 +114,17 @@ Deux étapes:
 \begin{frame}{Recherche des mots dans le dictionnaire}  %Détermination des longueurs par nature}
 
 \begin{itemize}
-\item Même en omettant cette étape, on obtient déjà des résultats intéressants!
+%\item Même en omettant cette étape, on obtient déjà des résultats intéressants!
 
-\vfill
+%\vfill
 
 \item Ce que peut indiquer un dictionnaire:
 
 \begin{itemize}
-\item une voyelle longue ou brève \structure{par nature}
-\item une voyelle en hiatus devant une autre \\
+\item Une voyelle longue ou brève \structure{par nature}
+\item Une voyelle en hiatus devant une autre \\
 ex: Collatinus indique \latin{m{\u e}us} vs \latin{seu}
-\item la valeur consonne ou voyelle de u/v et i/j
+\item La valeur consonne ou voyelle de u/v et i/j
 \end{itemize}
 
 \vfill
@@ -153,13 +153,13 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 \item Enjeu:
 
 \begin{itemize}
-\item pour les verbes, noms, adjectifs et pronoms, le dictionnaire donne le radical et le modèle de flexion
-\item or dans un texte, on rencontre des formes fléchies
+\item Pour les verbes, noms, adjectifs et pronoms, le dictionnaire donne le radical et le modèle de flexion
+\item Or dans un texte, on rencontre des formes fléchies
 \end{itemize}
 
 \vfill
 
-\item[$\Rightarrow$] Génération de toutes les formes de la langue latine
+\item[$\Rightarrow$] Génération de toutes les formes de la langue latine:
 
 \begin{itemize}
 \item Utilisation du générateur de Philippe Verkerk pour le \emph{Pocket Oxford}
@@ -201,8 +201,9 @@ Lewis \& Short	& \crx    & \crx   & \crx \\
 \item Une voyelle sans longueur par nature, suivie de deux consonnes, doit être allongée
 \item Quelques exceptions
 \vfill
-\item Si on utilise le dictionnaire pour obtenir les longueurs par nature, on contraint déjà beaucoup le problème\\
-$\Rightarrow$ La détermination des longues par position peut être désactivée
+\item On peut utiliser soit uniquement le dictionnaire,\\ soit uniquement la détermination des longues par position,\\ soit les deux méthodes
+%Si on utilise le dictionnaire pour obtenir les longueurs par nature, on contraint déjà beaucoup le problème\\
+%$\Rightarrow$ La détermination des longues par position peut être désactivée
 \end{itemize}
 \end{frame} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -259,7 +260,7 @@ Exemple: pentamètre
 
 \begin{tikzpicture}[->, node distance=1cm]
 \tikzstyle{div}=[circle,thick,draw=black,fill=black,inner sep=0pt,minimum size=.5mm]
-\tikzstyle{pied}=[rectangle,draw=black,fill=white]
+\tikzstyle{pied}=[rectangle,rounded corners,draw=black,fill=white]
 
 \node[div] (d0) {};
 
@@ -305,9 +306,9 @@ Pour le pentamètre $2 \times 2 \times 1 \times 1 \times 1 \times 1 = 4$ possibi
 \item Stratégie:
 
 \begin{itemize}
-\item essai exhaustif des combinaisons possibles \\
+\item Essai exhaustif des combinaisons possibles \\
 {\footnotesize (nombre toujours raisonnable)}
-\item abandon d'une combinaison dès qu'elle ne respecte pas les contraintes a priori
+\item Abandon d'une combinaison dès qu'elle ne respecte pas les contraintes a priori
 \end{itemize}
 
 \end{itemize}
@@ -365,8 +366,8 @@ V_HEXAMETRE = TypeVers("hd", [
 \item Mode de diffusion
 
 \begin{itemize}
-\item code: GNU General Public License (GPL)
-\item dictionnaires:
+\item Code: GNU General Public License (GPL)
+\item Dictionnaires:
 
 \begin{itemize}
 \item Gaffiot de 1934: dans le domaine public depuis 2007 (70 ans après la mort de Félix Gaffiot)
@@ -441,9 +442,9 @@ $\Rightarrow$ le dictionnaire ne doit contenir que l'indication pop\u{u}lus
 Même si l'outil ne donne pas automatiquement une solution unique à coup sûr, il fait des propositions qui peuvent guider l'étudiant:
 
 \begin{itemize}
-\item les longueurs par nature
-\item les longueurs par position
-\item une décomposition en syllabes \emph{a priori}
+\item Les longueurs par nature
+\item Les longueurs par position
+\item Une décomposition en syllabes \emph{a priori}
 \end{itemize}
 
 \vfill
@@ -459,11 +460,11 @@ Un enseignant peut exploiter les limites de l'outil pour montrer les chausse-tra
 Plutôt que proposer directement des résultats, un outil pédagogique pourrait engager un \structure{dialogue} avec l'élève:
 
 \begin{itemize}
-\item donner différentes propositions pour les homographes (cf. p\hlbr{o}p\u{u}lus/p\hllg{o}p\u{u}lus) avec les définitions
+\item Donner différentes propositions pour les homographes (cf. p\hlbr{o}p\u{u}lus/p\hllg{o}p\u{u}lus) avec les définitions
 
-\item demander à l'élève de confirmer ou d'infirmer chaque choix: indication des longueurs, découpage en syllabes
+\item Demander à l'élève de confirmer ou d'infirmer chaque choix: indication des longueurs, découpage en syllabes
 
-\item montrer les implications qu'une ébauche de scansion a sur le sens du texte:\\ par exemple, cas déduit d'une longueur de désinence
+\item Montrer les implications qu'une ébauche de scansion a sur le sens du texte:\\ par exemple, cas déduit d'une longueur de désinence
 
 \end{itemize}
 
@@ -489,6 +490,10 @@ Cela permettrait de \structure{faire des hypothèses}, d'en voir rapidement les 
 
 \uncover<2->{
 \centerline{\structure{Merci de votre attention}}
+
+\vfill
+
+\centerline{Outil disponible en ligne: \url{latin.jacquet80.eu}}
 }
 
 \vfill
