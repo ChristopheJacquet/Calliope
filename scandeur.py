@@ -185,7 +185,7 @@ V_HENDECASYLLABE_PHALECIEN = TypeVers("hp", [
 # sixième et dernier pied est le seul fiable : brève + indifférente = un
 # douzième de certitude ! Au premier pied même, parfois, on peut trouver
 # un procéleusmatique (brève brève brève brève)
-
+"""
 V_SENAIRE_IAMBIQUE = TypeVers("si", [
     ChoixPied([P_IAMBE, P_DACTYLE, P_SPONDEE, P_ANAPESTE, P_TRIBRAQUE, P_PROCELEUSMATIQUE]),
     ChoixPied([P_IAMBE, P_DACTYLE, P_SPONDEE, P_ANAPESTE, P_TRIBRAQUE]),
@@ -194,6 +194,7 @@ V_SENAIRE_IAMBIQUE = TypeVers("si", [
     ChoixPied([P_IAMBE, P_DACTYLE, P_SPONDEE, P_ANAPESTE, P_TRIBRAQUE]),
     TypePied([1, 0], u'.*')    
 ])
+"""
 
 def voyelle(c):
     return c in u"aeiouyæœαε"
