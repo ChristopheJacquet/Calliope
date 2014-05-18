@@ -6,6 +6,12 @@ import sqlite3
 import sys
 import os, inspect
 
+debug_on = False
+
+def debug(s):
+    if debug_on:
+        print(u"### {0}".format(s))
+
 def strlist(l):
     return u"[{0}]".format(u", ".join(unicode(x) for x in l))
 
@@ -33,7 +39,11 @@ class Pied:
             marque = "_"
         else:
             marque = ""
-        return u"{0}{1}{2}".format(self.voyelle, marque, self.consonnes)
+        if self.voyelle == None:
+            v = u""
+        else:
+            v = self.voyelle
+        return u"{0}{1}{2}".format(v, marque, self.consonnes)
     
     def __repr__(self):
         return self.__str__()
@@ -230,6 +240,8 @@ def decoupe_pieds(vers):
     diphtongues = ["ae", "oe", "eu", "au"]
     
     for c in vers:
+        ##print(pieds, debut)
+    
         if c == '_':
             pieds[-1].longueur = 2
             pieds[-1].origineLongueur = "nature"
@@ -266,7 +278,9 @@ def applique_allongements(pieds):
     for p in pieds[1:]:
         if p.longueur == 0:
             conso = p.lesConsonnes()
-            if len(conso) == 2 and not conso[1] in "rl":
+            if len(conso) == 2 and not conso[1] in "rlh":
+                # Une voyelle devant deux consonnes, dont la 2e n'est ni r, l ou h,
+                # est allongée
                 p.longueur = 2
                 p.origineLongueur = "position"
             if len(conso) > 2:
@@ -395,16 +409,22 @@ def par(texte, mode):
 
 def scande(vers, type_vers, mode = "txt"):
     txt = u""
-    #print( u"Entrée :    {0}".format(vers) )
+    
+    debug(u"Entrée :    {0}".format(vers) )
     
     versNormalise = normalise(vers)
-    #print( u"Normalisé : {0}".format(versNormalise) )
+
+    debug(u"Normalisé : {0}".format(versNormalise) )
 
     (versPondere, non_trouves) = recherche_dictionnaire(versNormalise)
     if len(non_trouves) > 0:
         txt += par(u"Mots absents du dictionnaire : {0}\n".format(u", ".join(non_trouves)), mode)
     
+    debug(u"Vers pondéré : {0}".format(versPondere))
+    
     pieds = decoupe_pieds(versPondere)
+
+    debug(u"Découpage en pieds : {0}".format(pieds))
 
     applique_allongements(pieds)
     
@@ -414,7 +434,7 @@ def scande(vers, type_vers, mode = "txt"):
     if mode == "txt":
         txt += res_quantites_apriori
     
-    #print( u"Longueurs : {0}".format(res) )
+    #debug( u"Longueurs : {0}".format(res) )
     
     possibilites = type_vers.scande( quantites )
     #print possibilites
