@@ -347,8 +347,11 @@ def formate_scansion(texte, longueurs_pieds, pieds, quantites, mode):
             else:
                 cls = ""
             
+            if pieds[i].elision != "":
+                h += u"<td></td>"
+                b += u"<td>{0}</td>".format(pieds[i].elision)
             h += u'<td {1}>{0}</td>'.format(symbole, cls)
-            b += u'<td>{0} {1}</td>'.format(pieds[i].elision, pieds[i].voyelle)
+            b += u'<td>{0}</td>'.format(pieds[i].voyelle)
             #h += u'<td colspan="{0}">{1}</td>'.format(len(pieds[i].voyelle), symbole)
             #b += '<td>' + '</td><td>'.join(pieds[i].voyelle) + '</td>'
             
