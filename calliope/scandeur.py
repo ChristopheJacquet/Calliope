@@ -19,6 +19,7 @@ def strlist(l):
 
 class Pied:
     def __init__(self, voyelle):
+        self.elision = u""
         self.voyelle = voyelle
         self.consonnes = u""
         self.longueur = 0
@@ -34,6 +35,10 @@ class Pied:
                 conso += c
         return conso
     
+    def transformeEnElision(self, vraieVoyelle):
+        self.elision = self.voyelle
+        self.voyelle = vraieVoyelle
+    
     def __str__(self):
         if self.longueur == 2:
             marque = "_"
@@ -43,7 +48,7 @@ class Pied:
             v = u""
         else:
             v = self.voyelle
-        return u"{0}{1}{2}".format(v, marque, self.consonnes)
+        return u"{0}{1}{2}{3}".format(self.elision, v, marque, self.consonnes)
     
     def __repr__(self):
         return self.__str__()
@@ -259,7 +264,7 @@ def decoupe_pieds(vers):
                 pieds[-1].ajouteConsonne(c)
             # en tête de mot avec élision ?
             elif voyelle(debut[-2]) and debut[-1] == " ":
-                pieds[-1].ajouteConsonne(c)
+                pieds[-1].transformeEnElision(c)
             # "vraie" voyelle ?
             else:
                 pieds += [Pied(c)]
@@ -314,6 +319,8 @@ def formate_scansion(texte, longueurs_pieds, pieds, quantites, mode):
     if mode == "txt":
         res = pieds[0].consonnes
         for i in range(1,(len(pieds))):
+            if pieds[i].elision != "":
+                res += pieds[i].elision + u" "
             res += pieds[i].voyelle
             res += marqueurs_quantites[quantites[i-1]]
             res += pieds[i].consonnes
@@ -341,7 +348,7 @@ def formate_scansion(texte, longueurs_pieds, pieds, quantites, mode):
                 cls = ""
             
             h += u'<td {1}>{0}</td>'.format(symbole, cls)
-            b += u'<td>{0}</td>'.format(pieds[i].voyelle)
+            b += u'<td>{0} {1}</td>'.format(pieds[i].elision, pieds[i].voyelle)
             #h += u'<td colspan="{0}">{1}</td>'.format(len(pieds[i].voyelle), symbole)
             #b += '<td>' + '</td><td>'.join(pieds[i].voyelle) + '</td>'
             
